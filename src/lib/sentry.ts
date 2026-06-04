@@ -30,16 +30,6 @@ export function initSentryClient() {
     // Only send errors in production to avoid noise in development
     environment: import.meta.env.MODE,
     tracesSampleRate: import.meta.env.MODE === "production" ? 0.1 : 0,
-    integrations: [
-      // Capture unhandled exceptions
-      new Sentry.Replay({
-        maskAllText: true,
-        blockAllMedia: true,
-      }),
-    ],
-    // Set sample rate to 100% for replays
-    replaysSessionSampleRate: 0.1,
-    replaysOnErrorSampleRate: 1.0,
     ignoreErrors: [
       // Browser plugins
       "top.GLOBALS",
