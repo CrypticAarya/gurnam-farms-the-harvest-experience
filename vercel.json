@@ -1,8 +1,20 @@
 {
   "buildCommand": "npm run build",
   "installCommand": "npm install --legacy-peer-deps",
-  "outputDirectory": "dist/client",
-  "framework": "vite",
+  "framework": "other",
+  "functions": {
+    "dist/server/server.js": {
+      "runtime": "nodejs20.x",
+      "memory": 1024,
+      "maxDuration": 60
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/:path*",
+      "destination": "/dist/server/server.js"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
