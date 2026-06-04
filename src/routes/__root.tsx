@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { logger } from "@/lib/logger";
+import { initSentryClient } from "@/lib/sentry";
 
 function NotFoundComponent() {
   return (
@@ -130,6 +131,11 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  // Initialize Sentry error tracking on app load
+  useEffect(() => {
+    initSentryClient();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
