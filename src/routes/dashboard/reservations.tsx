@@ -14,11 +14,11 @@ export const Route = createFileRoute("/dashboard/reservations")({
 });
 
 function ReservationsPage() {
-  const query = useQuery<ReservationRow[]>({
+  const query = useQuery({
     queryKey: ["user", "reservations"],
-    queryFn: fetchUserReservations,
+    queryFn: () => fetchUserReservations(),
   });
-  const items = query.data ?? [];
+  const items = (query.data as ReservationRow[]) ?? [];
 
   return (
     <div className="min-h-screen bg-cream p-6">
