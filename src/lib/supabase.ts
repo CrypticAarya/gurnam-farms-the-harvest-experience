@@ -278,17 +278,25 @@ export async function submitReservation(reservation: ReservationInsert) {
       logger.warn("[submitReservation] createProgressForReservation failed", { err: String(e) });
     }
 
-    // Send confirmation email (best-effort)
+    // Send confirmation email via server function (best-effort)
     try {
-      await sendReservationConfirmation({
-        full_name: reservation.full_name,
-        email: reservation.email,
-        delivery_area: reservation.delivery_area,
-        address: reservation.address,
-        selected_vegetables: reservation.selected_vegetables,
-      } as any);
+      const { sendReservationConfirmationEmail } = await import("@/lib/api/email.functions");
+      const result = await sendReservationConfirmationEmail({
+        data: {
+          full_name: reservation.full_name,
+          email: reservation.email,
+          delivery_area: reservation.delivery_area,
+          address: reservation.address,
+          selected_vegetables: reservation.selected_vegetables,
+        },
+      });
+      if (!result.ok) {
+        logger.warn("[submitReservation] Email send failed", { message: result.message });
+      } else {
+        logger.info("[submitReservation] Confirmation email queued", { id: result.id });
+      }
     } catch (e) {
-      logger.warn("[submitReservation] sendReservationConfirmation failed", { err: String(e) });
+      logger.warn("[submitReservation] Email function error", { err: String(e) });
     }
   }
 
