@@ -2,13 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Navbar } from "@/components/site/Navbar";
 import { Hero } from "@/components/site/Hero";
 import { Story } from "@/components/site/Story";
-import { Collections } from "@/components/site/Collections";
-import { Journey } from "@/components/site/Journey";
-import { Benefits } from "@/components/site/Benefits";
-import { Gallery } from "@/components/site/Gallery";
-import { Testimonials } from "@/components/site/Testimonials";
+import { SeasonalHarvest } from "@/components/site/SeasonalHarvest";
+import { DeliveryAreas } from "@/components/site/DeliveryAreas";
 import { DeliveryNetwork } from "@/components/site/DeliveryNetwork";
-import { FinalCTA } from "@/components/site/FinalCTA";
 import { Footer } from "@/components/site/Footer";
 
 export const Route = createFileRoute("/")({
@@ -38,13 +34,9 @@ function Index() {
       <main>
         <Hero />
         <Story />
-        <Collections />
-        <Journey />
-        <Benefits />
-        <Gallery />
-        <Testimonials />
+        <SeasonalHarvest />
+        <DeliveryAreas />
         <DeliveryNetwork />
-        <FinalCTA />
       </main>
       <Footer />
     </div>

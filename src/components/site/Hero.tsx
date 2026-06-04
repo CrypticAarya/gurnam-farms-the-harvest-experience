@@ -3,11 +3,12 @@ import { useRef } from "react";
 import { Leaf, Sprout, Truck } from "lucide-react";
 import heroFarm from "@/assets/hero-farm.jpg";
 
-const badges = [
-  { icon: Leaf, label: "100% Certified Organic" },
-  { icon: Sprout, label: "Harvested at Dawn" },
-  { icon: Truck, label: "2-Hour Delivery" },
-];
+type BadgeItem = {
+  label: string;
+  icon: React.ComponentType<{ size: number; className: string }>;
+};
+
+const badges: BadgeItem[] = [];
 
 export function Hero() {
   const ref = useRef<HTMLElement>(null);
@@ -46,7 +47,7 @@ export function Hero() {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="eyebrow text-gold"
         >
-          Farm-to-Home · Established in Punjab
+          Farm-to-Home · Established in Patiala
         </motion.p>
 
         <motion.h1
@@ -55,9 +56,9 @@ export function Hero() {
           transition={{ duration: 1, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
           className="mt-6 font-display text-5xl font-medium leading-[1.05] tracking-tight text-cream sm:text-6xl md:text-7xl lg:text-8xl text-balance"
         >
-          Farm Fresh.
+          Organic Vegetables.
           <br />
-          <span className="italic text-gold">Delivered</span> Before Dawn.
+          <span className="italic text-gold">Straight from</span> Our Farms.
         </motion.h1>
 
         <motion.p
@@ -66,7 +67,7 @@ export function Hero() {
           transition={{ duration: 0.9, delay: 0.8 }}
           className="mx-auto mt-7 max-w-xl text-base leading-relaxed text-cream/80 sm:text-lg"
         >
-          Premium organic produce harvested hours before it arrives at your
+          Delivered Weekly at your
           doorstep.
         </motion.p>
 
@@ -82,12 +83,7 @@ export function Hero() {
           >
             Reserve Your Share
           </a>
-          <a
-            href="#collections"
-            className="w-full rounded-full border border-cream/40 px-9 py-4 text-sm font-semibold tracking-wide text-cream transition-colors hover:border-gold hover:text-gold sm:w-auto"
-          >
-            Explore Collections
-          </a>
+          
         </motion.div>
 
         <motion.ul

@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Menu, X } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 
 const links = [
-  { label: "Collections", href: "#collections" },
+  { label: "Home", href: "/" },
   { label: "Our Story", href: "#story" },
-  { label: "Journey", href: "#journey" },
-  { label: "Gallery", href: "#gallery" },
-  { label: "Delivery", href: "#delivery" },
+  { label: "Seasonal Harvest", href: "#seasonal" },
+  { label: "Delivery Areas", href: "#delivery" },
 ];
 
 export function Navbar() {
+  const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -50,12 +51,12 @@ export function Navbar() {
           ))}
         </div>
 
-        <a
-          href="#cta"
+        <button
+          onClick={() => navigate({ to: "/reserve" })}
           className="hidden rounded-full border border-gold bg-gold px-6 py-2.5 text-sm font-semibold text-forest-deep transition-all hover:bg-transparent hover:text-gold lg:inline-block"
         >
-          Reserve a Share
-        </a>
+          Reserve Your Field
+        </button>
 
         <button
           aria-label="Toggle menu"
@@ -83,13 +84,15 @@ export function Navbar() {
                 {l.label}
               </a>
             ))}
-            <a
-              href="#cta"
-              onClick={() => setOpen(false)}
+            <button
+              onClick={() => {
+                navigate({ to: "/reserve" });
+                setOpen(false);
+              }}
               className="mt-2 rounded-full bg-gold px-6 py-3 text-center text-sm font-semibold text-forest-deep"
             >
-              Reserve a Share
-            </a>
+              Reserve Your Field
+            </button>
           </div>
         </motion.div>
       )}

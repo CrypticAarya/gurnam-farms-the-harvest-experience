@@ -10,11 +10,45 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as ReserveRouteImport } from './routes/reserve'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as DashboardReservationsRouteImport } from './routes/dashboard/reservations'
+import { Route as DashboardProfileRouteImport } from './routes/dashboard/profile'
+import { Route as DashboardEnquiriesRouteImport } from './routes/dashboard/enquiries'
+import { Route as AdminSubscribersRouteImport } from './routes/admin/subscribers'
+import { Route as AdminReservationsRouteImport } from './routes/admin/reservations'
+import { Route as AdminLoginRouteImport } from './routes/admin/login'
+import { Route as AdminEnquiriesRouteImport } from './routes/admin/enquiries'
+import { Route as AdminCustomersRouteImport } from './routes/admin/customers'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReserveRoute = ReserveRouteImport.update({
+  id: '/reserve',
+  path: '/reserve',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -22,31 +56,186 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardReservationsRoute = DashboardReservationsRouteImport.update({
+  id: '/dashboard/reservations',
+  path: '/dashboard/reservations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardProfileRoute = DashboardProfileRouteImport.update({
+  id: '/dashboard/profile',
+  path: '/dashboard/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardEnquiriesRoute = DashboardEnquiriesRouteImport.update({
+  id: '/dashboard/enquiries',
+  path: '/dashboard/enquiries',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminSubscribersRoute = AdminSubscribersRouteImport.update({
+  id: '/admin/subscribers',
+  path: '/admin/subscribers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminReservationsRoute = AdminReservationsRouteImport.update({
+  id: '/admin/reservations',
+  path: '/admin/reservations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminEnquiriesRoute = AdminEnquiriesRouteImport.update({
+  id: '/admin/enquiries',
+  path: '/admin/enquiries',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminCustomersRoute = AdminCustomersRouteImport.update({
+  id: '/admin/customers',
+  path: '/admin/customers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/contact': typeof ContactRoute
+  '/login': typeof LoginRoute
+  '/reserve': typeof ReserveRoute
+  '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/customers': typeof AdminCustomersRoute
+  '/admin/enquiries': typeof AdminEnquiriesRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/reservations': typeof AdminReservationsRoute
+  '/admin/subscribers': typeof AdminSubscribersRoute
+  '/dashboard/enquiries': typeof DashboardEnquiriesRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/reservations': typeof DashboardReservationsRoute
+  '/admin/': typeof AdminIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/contact': typeof ContactRoute
+  '/login': typeof LoginRoute
+  '/reserve': typeof ReserveRoute
+  '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/customers': typeof AdminCustomersRoute
+  '/admin/enquiries': typeof AdminEnquiriesRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/reservations': typeof AdminReservationsRoute
+  '/admin/subscribers': typeof AdminSubscribersRoute
+  '/dashboard/enquiries': typeof DashboardEnquiriesRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/reservations': typeof DashboardReservationsRoute
+  '/admin': typeof AdminIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/contact': typeof ContactRoute
+  '/login': typeof LoginRoute
+  '/reserve': typeof ReserveRoute
+  '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/customers': typeof AdminCustomersRoute
+  '/admin/enquiries': typeof AdminEnquiriesRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/reservations': typeof AdminReservationsRoute
+  '/admin/subscribers': typeof AdminSubscribersRoute
+  '/dashboard/enquiries': typeof DashboardEnquiriesRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/reservations': typeof DashboardReservationsRoute
+  '/admin/': typeof AdminIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/sitemap.xml'
+  fullPaths:
+    | '/'
+    | '/contact'
+    | '/login'
+    | '/reserve'
+    | '/signup'
+    | '/sitemap.xml'
+    | '/admin/customers'
+    | '/admin/enquiries'
+    | '/admin/login'
+    | '/admin/reservations'
+    | '/admin/subscribers'
+    | '/dashboard/enquiries'
+    | '/dashboard/profile'
+    | '/dashboard/reservations'
+    | '/admin/'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/sitemap.xml'
-  id: '__root__' | '/' | '/sitemap.xml'
+  to:
+    | '/'
+    | '/contact'
+    | '/login'
+    | '/reserve'
+    | '/signup'
+    | '/sitemap.xml'
+    | '/admin/customers'
+    | '/admin/enquiries'
+    | '/admin/login'
+    | '/admin/reservations'
+    | '/admin/subscribers'
+    | '/dashboard/enquiries'
+    | '/dashboard/profile'
+    | '/dashboard/reservations'
+    | '/admin'
+    | '/dashboard'
+  id:
+    | '__root__'
+    | '/'
+    | '/contact'
+    | '/login'
+    | '/reserve'
+    | '/signup'
+    | '/sitemap.xml'
+    | '/admin/customers'
+    | '/admin/enquiries'
+    | '/admin/login'
+    | '/admin/reservations'
+    | '/admin/subscribers'
+    | '/dashboard/enquiries'
+    | '/dashboard/profile'
+    | '/dashboard/reservations'
+    | '/admin/'
+    | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ContactRoute: typeof ContactRoute
+  LoginRoute: typeof LoginRoute
+  ReserveRoute: typeof ReserveRoute
+  SignupRoute: typeof SignupRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  AdminCustomersRoute: typeof AdminCustomersRoute
+  AdminEnquiriesRoute: typeof AdminEnquiriesRoute
+  AdminLoginRoute: typeof AdminLoginRoute
+  AdminReservationsRoute: typeof AdminReservationsRoute
+  AdminSubscribersRoute: typeof AdminSubscribersRoute
+  DashboardEnquiriesRoute: typeof DashboardEnquiriesRoute
+  DashboardProfileRoute: typeof DashboardProfileRoute
+  DashboardReservationsRoute: typeof DashboardReservationsRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,6 +247,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reserve': {
+      id: '/reserve'
+      path: '/reserve'
+      fullPath: '/reserve'
+      preLoaderRoute: typeof ReserveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -65,13 +282,107 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/reservations': {
+      id: '/dashboard/reservations'
+      path: '/dashboard/reservations'
+      fullPath: '/dashboard/reservations'
+      preLoaderRoute: typeof DashboardReservationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/profile': {
+      id: '/dashboard/profile'
+      path: '/dashboard/profile'
+      fullPath: '/dashboard/profile'
+      preLoaderRoute: typeof DashboardProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/enquiries': {
+      id: '/dashboard/enquiries'
+      path: '/dashboard/enquiries'
+      fullPath: '/dashboard/enquiries'
+      preLoaderRoute: typeof DashboardEnquiriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/subscribers': {
+      id: '/admin/subscribers'
+      path: '/admin/subscribers'
+      fullPath: '/admin/subscribers'
+      preLoaderRoute: typeof AdminSubscribersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/reservations': {
+      id: '/admin/reservations'
+      path: '/admin/reservations'
+      fullPath: '/admin/reservations'
+      preLoaderRoute: typeof AdminReservationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/enquiries': {
+      id: '/admin/enquiries'
+      path: '/admin/enquiries'
+      fullPath: '/admin/enquiries'
+      preLoaderRoute: typeof AdminEnquiriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/customers': {
+      id: '/admin/customers'
+      path: '/admin/customers'
+      fullPath: '/admin/customers'
+      preLoaderRoute: typeof AdminCustomersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ContactRoute: ContactRoute,
+  LoginRoute: LoginRoute,
+  ReserveRoute: ReserveRoute,
+  SignupRoute: SignupRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  AdminCustomersRoute: AdminCustomersRoute,
+  AdminEnquiriesRoute: AdminEnquiriesRoute,
+  AdminLoginRoute: AdminLoginRoute,
+  AdminReservationsRoute: AdminReservationsRoute,
+  AdminSubscribersRoute: AdminSubscribersRoute,
+  DashboardEnquiriesRoute: DashboardEnquiriesRoute,
+  DashboardProfileRoute: DashboardProfileRoute,
+  DashboardReservationsRoute: DashboardReservationsRoute,
+  AdminIndexRoute: AdminIndexRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
