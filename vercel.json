@@ -3,13 +3,6 @@
   "installCommand": "npm install --legacy-peer-deps",
   "outputDirectory": "dist/client",
   "framework": "vite",
-  "functions": {
-    "dist/server/server.js": {
-      "runtime": "nodejs18.x",
-      "memory": 1024,
-      "maxDuration": 60
-    }
-  },
   "headers": [
     {
       "source": "/(.*)",
