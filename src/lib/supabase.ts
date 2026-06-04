@@ -397,7 +397,7 @@ export async function fetchUserReservations(userId?: string) {
   if (!userId) userId = await getCurrentUserId();
   if (!userId) return [];
   const { data, error } = await supabase
-    .from<HarvestReservationRow>("harvest_reservations")
+    .from<ReservationRow>("reservations")
     .select("*")
     .eq("profile_id", userId)
     .order("created_at", { ascending: false });

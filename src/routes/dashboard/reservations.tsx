@@ -1,13 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { fetchUserReservations, getSession, getProfile } from "@/lib/supabase";
-
-type HarvestReservation = {
-  id: number;
-  name: string;
-  city: string;
-  created_at: string;
-};
+import { fetchUserReservations, getSession, getProfile, type ReservationRow } from "@/lib/supabase";
 
 export const Route = createFileRoute("/dashboard/reservations")({
   beforeLoad: async () => {
@@ -21,7 +14,7 @@ export const Route = createFileRoute("/dashboard/reservations")({
 });
 
 function ReservationsPage() {
-  const query = useQuery<HarvestReservation[]>({
+  const query = useQuery<ReservationRow[]>({
     queryKey: ["user", "reservations"],
     queryFn: fetchUserReservations,
   });
@@ -31,8 +24,8 @@ function ReservationsPage() {
     <div className="min-h-screen bg-cream p-6">
       <h1 className="text-2xl font-semibold text-forest-deep">My Reservations</h1>
       <ul className="mt-4 space-y-3">
-        {items.map((r: HarvestReservation) => (
-          <li key={r.id} className="rounded-md border bg-white/90 p-4">{r.name} — {r.city} — {r.created_at}</li>
+        {items.map((r: ReservationRow) => (
+          <li key={r.id} className="rounded-md border bg-white/90 p-4">{r.full_name} — {r.delivery_area} — {new Date(r.created_at).toLocaleString()}</li>
         ))}
       </ul>
     </div>
