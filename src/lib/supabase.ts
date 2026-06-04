@@ -353,6 +353,48 @@ export async function fetchDashboardCounts() {
   };
 }
 
+export async function fetchAdminMetrics() {
+  try {
+    // Total customers (unique profile_id from reservations)
+    const customers = await supabase
+      .from<ReservationRow>("reservations")
+      .select("profile_id", { count: "exact", head: true })
+      .not("profile_id", "is", null);
+
+    // Total reservations
+    const allReservations = await supabase
+      .from<ReservationRow>("reservations")
+      .select("id, status", { count: "exact", head: false });
+
+    // Count by status
+    const reservationsByStatus = allReservations.data?.reduce((acc: any, res) => {
+      acc[res.status] = (acc[res.status] ?? 0) + 1;
+      return acc;
+    }, {}) ?? {};
+
+    if (customers.error || allReservations.error) {
+      throwSupabaseError(customers.error ?? allReservations.error);
+    }
+
+    return {
+      totalCustomers: customers.count ?? 0,
+      totalReservations: allReservations.count ?? 0,
+      activeDeliveries: (reservationsByStatus["confirmed"] ?? 0) + (reservationsByStatus["pending"] ?? 0),
+      completedDeliveries: reservationsByStatus["completed"] ?? 0,
+      pendingReservations: reservationsByStatus["pending"] ?? 0,
+    };
+  } catch (err) {
+    logger.error("fetchAdminMetrics failed", { err: String(err) });
+    return {
+      totalCustomers: 0,
+      totalReservations: 0,
+      activeDeliveries: 0,
+      completedDeliveries: 0,
+      pendingReservations: 0,
+    };
+  }
+}
+
 export async function fetchRecentActivity(limit = 6) {
   const [contacts, reservations, subscribers] = await Promise.all([
     fetchContactSubmissions(),
