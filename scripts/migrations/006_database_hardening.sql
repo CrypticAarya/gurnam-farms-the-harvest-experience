@@ -15,23 +15,10 @@
 -- ============================================================================
 -- Strategy: Keep ONLY the 'reservations' table (has proper schema with
 -- delivery_area, address, selected_vegetables).
--- Migrate data from harvest_reservations to reservations if needed.
--- Drop harvest_reservations table after migration.
+-- Drop harvest_reservations table (no longer used - all code migrated to 'reservations')
 
--- This is a destructive change. Only run if you're sure you don't need
--- harvest_reservations data. Backup your database first!
-
--- Option A: Drop harvest_reservations immediately (clean slate)
--- Uncomment the following to enable:
--- DROP TABLE IF EXISTS public.harvest_reservations CASCADE;
-
--- Option B: Migrate data from harvest_reservations to reservations (recommended)
--- This maintains backward compatibility by copying all data first
--- Then we can safely drop harvest_reservations after verification
-
--- Create a backup of harvest_reservations data (optional)
--- CREATE TABLE IF NOT EXISTS public.harvest_reservations_backup AS
--- SELECT * FROM public.harvest_reservations;
+-- WARNING: This is a destructive change. Backup your database first!
+-- IMPORTANT: This migration assumes all code has been migrated to use 'reservations' table.
 
 -- Drop harvest_reservations (deprecated) - all code now uses 'reservations' table exclusively
 DROP TABLE IF EXISTS public.harvest_reservations CASCADE;
@@ -215,7 +202,7 @@ ALTER TABLE public.reservations
 -- ============================================================================
 -- STEP 7: SUMMARY AND NEXT STEPS
 -- ============================================================================
--- ✓ Consolidated duplicate reservation tables (harvest_reservations marked deprecated)
+-- ✓ Consolidated duplicate reservation tables (harvest_reservations dropped)
 -- ✓ Added foreign key constraints for referential integrity
 -- ✓ Added NOT NULL constraints where required
 -- ✓ Added indexes for common query patterns:
@@ -230,7 +217,9 @@ ALTER TABLE public.reservations
 -- 1. Execute this migration in Supabase SQL Editor
 -- 2. Run all validation scripts to verify success
 -- 3. Monitor database performance for index effectiveness
--- 4. Update code to stop using harvest_reservations table
--- 5. Deprecate fetchHarvestReservations() and submitHarvestReservation()
--- 6. Proceed to Phase 4C (Customer Experience)
+-- 
+-- VERIFICATION:
+-- ✓ All code has been migrated to use 'reservations' table (Phase 4F)
+-- ✓ Deprecated functions removed (Phase 4F)
+-- ✓ harvest_reservations table will be dropped by this migration
 -- ============================================================================
