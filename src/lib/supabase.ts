@@ -35,20 +35,6 @@ export type ReservationRow = ReservationInsert & {
   created_at: string;
 };
 
-export type HarvestReservationInsert = {
-  name: string;
-  email: string;
-  phone: string;
-  city: string;
-  notes?: string;
-};
-
-export type HarvestReservationRow = HarvestReservationInsert & {
-  id: number;
-  profile_id?: string | null;
-  created_at: string;
-};
-
 export type ContactSubmissionInsert = {
   name: string;
   email: string;
@@ -228,20 +214,6 @@ async function getCurrentUserId() {
   return u.data.user?.id ?? null;
 }
 
-export async function submitHarvestReservation(
-  reservation: HarvestReservationInsert
-) {
-  const profileId = await getCurrentUserId();
-  const payload = { ...reservation, profile_id: profileId } as any;
-
-  const { data, error } = await supabase
-    .from<HarvestReservationRow>("harvest_reservations")
-    .insert(payload)
-    .select();
-  if (error) throwSupabaseError(error);
-  return data;
-}
-
 export async function submitContactSubmission(
   submission: ContactSubmissionInsert
 ) {
@@ -321,15 +293,6 @@ export async function fetchContactSubmissions() {
   return data ?? [];
 }
 
-export async function fetchHarvestReservations() {
-  const { data, error } = await supabase
-    .from<HarvestReservationRow>("harvest_reservations")
-    .select("*")
-    .order("created_at", { ascending: false });
-  if (error) throwSupabaseError(error);
-  return data ?? [];
-}
-
 export async function fetchNewsletterSubscribers() {
   const { data, error } = await supabase
     .from<NewsletterSubscriberRow>("newsletter_subscribers")
@@ -344,7 +307,7 @@ export async function fetchDashboardCounts() {
     .from<ContactSubmissionRow>("contact_submissions")
     .select("id", { count: "exact", head: true });
   const reservations = await supabase
-    .from<HarvestReservationRow>("harvest_reservations")
+    .from<ReservationRow>("reservations")
     .select("id", { count: "exact", head: true });
   const subscribers = await supabase
     .from<NewsletterSubscriberRow>("newsletter_subscribers")
@@ -406,7 +369,7 @@ export async function fetchAdminMetrics() {
 export async function fetchRecentActivity(limit = 6) {
   const [contacts, reservations, subscribers] = await Promise.all([
     fetchContactSubmissions(),
-    fetchHarvestReservations(),
+    fetchReservations(),
     fetchNewsletterSubscribers(),
   ]);
 
@@ -422,9 +385,9 @@ export async function fetchRecentActivity(limit = 6) {
     ...reservations.map((item) => ({
       id: item.id,
       source: "reservation" as const,
-      title: item.name,
+      title: item.full_name,
       email: item.email,
-      details: `${item.city} — ${item.notes ?? "No notes"}`,
+      details: `${item.delivery_area} — ${item.address}`,
       created_at: item.created_at,
     })),
     ...subscribers.map((item) => ({
