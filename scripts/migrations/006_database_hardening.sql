@@ -33,8 +33,8 @@
 -- CREATE TABLE IF NOT EXISTS public.harvest_reservations_backup AS
 -- SELECT * FROM public.harvest_reservations;
 
--- For now, we keep harvest_reservations but mark it as deprecated
--- Future: Migrate all code to use 'reservations' table only
+-- Drop harvest_reservations (deprecated) - all code now uses 'reservations' table exclusively
+DROP TABLE IF EXISTS public.harvest_reservations CASCADE;
 
 -- ============================================================================
 -- STEP 2: ADD FOREIGN KEY CONSTRAINTS

@@ -165,9 +165,8 @@ export async function signUpCustomer({
   }
 
   // Profile will be created automatically by Supabase trigger when the user
-  // is confirmed in auth.users. The trigger sets:
-  // - role='admin' if email is 'sarthakghoderao@gmail.com'
-  // - role='customer' for all other emails
+  // is confirmed in auth.users. The trigger sets role='customer' for all users.
+  // Admins must be manually assigned via database update (prevents email-based privilege escalation).
 }
 
 export async function signInCustomer({

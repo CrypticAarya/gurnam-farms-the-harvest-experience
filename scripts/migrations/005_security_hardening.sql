@@ -76,6 +76,9 @@ CREATE POLICY "Admins can manage reservation progress (hardened)"
 -- ============================================================================
 
 -- Update handle_new_user() to be SECURITY DEFINER (if not already)
+-- NOTE: All users get role='customer' on signup.
+-- Admins must be manually set via UPDATE profiles SET role='admin' WHERE id=...
+-- This prevents email-based privilege escalation.
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN
@@ -83,10 +86,7 @@ BEGIN
   VALUES (
     new.id,
     new.email,
-    CASE 
-      WHEN new.email = 'sarthakghoderao@gmail.com' THEN 'admin'
-      ELSE 'customer'
-    END
+    'customer'
   );
   RETURN new;
 END;
@@ -153,13 +153,20 @@ $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 -- ✓ Replaced all RLS subqueries with app.is_admin() calls
 -- ✓ Ensured all trigger functions are SECURITY DEFINER
 -- ✓ Added execute permissions for anon and authenticated roles
--- ✓ Removed hardcoded email checks from profiles table
---   (Email check remains in handle_new_user() trigger for backward compatibility,
---    but can be removed if all admins are assigned via role = 'admin')
+-- ✓ Removed hardcoded email checks from handle_new_user() trigger
+--   (All new users get role='customer'; admins assigned manually to prevent privilege escalation)
+--
+-- ADMIN SETUP (After migration):
+-- To make a user an admin, run in Supabase SQL Editor:
+--   UPDATE public.profiles SET role='admin' WHERE id='<user-id>';
+--   
+-- To verify admin role:
+--   SELECT app.is_admin('<user-id>'::uuid);  -- Should return true
 --
 -- NEXT STEPS:
 -- 1. Execute this migration in Supabase SQL Editor
 -- 2. Run verification queries to test customer/admin access
--- 3. Test customer signup and admin login flows
--- 4. Proceed to Phase 4B (Database Hardening)
+-- 3. Manually assign admin role to desired users
+-- 4. Test customer signup and admin login flows
+-- 5. Proceed to Phase 4B (Database Hardening)
 -- ============================================================================
