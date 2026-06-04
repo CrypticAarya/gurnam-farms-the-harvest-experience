@@ -1,5 +1,5 @@
 import { motion, type Variants } from "motion/react";
-import type { ReactNode } from "react";
+import type { ComponentType, ReactNode } from "react";
 
 const variants: Variants = {
   hidden: { opacity: 0, y: 32 },
@@ -21,7 +21,7 @@ export function Reveal({
   className?: string;
   as?: "div" | "li" | "span";
 }) {
-  const MotionTag = motion[as];
+  const MotionTag = motion[as] as ComponentType<Record<string, unknown>>;
   return (
     <MotionTag
       className={className}
