@@ -1,7 +1,7 @@
 {
   "buildCommand": "npm run build",
   "installCommand": "npm install --legacy-peer-deps",
-  "framework": "other",
+  "framework": "tanstack-start",
   "functions": {
     "dist/server/server.js": {
       "runtime": "nodejs20.x",
