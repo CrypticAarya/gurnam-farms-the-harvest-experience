@@ -12,4 +12,15 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // Enable Nitro during build and target Vercel so the build outputs server functions
+  // and static assets in the layout Vercel expects. We also set output directories
+  // to keep compatibility with existing `dist/client` and `dist/server` usage.
+  nitro: {
+    preset: "vercel",
+    output: {
+      dir: "dist",
+      serverDir: "dist/server",
+      publicDir: "dist/client"
+    }
+  }
 });
