@@ -1,0 +1,23 @@
+[build]
+  command = "npm run build"
+  # Netlify will use the Build Output API when `.netlify/output` exists.
+  # Nitro writes static files into `.netlify/output/static` when using the `netlify` preset.
+  publish = ".netlify/output/static"
+
+[dev]
+  command = "npm run dev"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer-when-downgrade"

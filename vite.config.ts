@@ -16,11 +16,14 @@ export default defineConfig({
   // and static assets in the layout Vercel expects. We also set output directories
   // to keep compatibility with existing `dist/client` and `dist/server` usage.
   nitro: {
-    preset: "vercel",
-    // Output directly into Vercel's prebuilt folder so the build produces
-    // a ready-to-deploy `.vercel/output` structure (functions + static).
+    preset: "netlify",
+    // Output into Netlify's prebuilt folder so `npm run build` produces
+    // a ready-to-deploy `.netlify/output` structure (functions + static).
     output: {
-      dir: ".vercel/output"
+      dir: ".netlify/output",
+      // Place server build and functions under `server` and static files under `static`
+      serverDir: ".netlify/output/server",
+      publicDir: ".netlify/output/static"
     }
   }
 });

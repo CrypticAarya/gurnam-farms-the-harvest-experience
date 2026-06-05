@@ -1,0 +1,1 @@
+const a=["Patiala","Rajpura","Ambala","Chandigarh"],n=["Model Town","Urban Estate","Tripuri","Lower Mall","Lehal Colony","Rajpura Road","Bhupindra Road","New Lal Bagh","Anardana Chowk","21 No. Phatak"],o={name:"Gurnam Farms",phone:"9872863115",address:"Punjab, India"};export{o as B,a as D,n as a};
