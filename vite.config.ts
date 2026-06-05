@@ -17,10 +17,10 @@ export default defineConfig({
   // to keep compatibility with existing `dist/client` and `dist/server` usage.
   nitro: {
     preset: "vercel",
+    // Output directly into Vercel's prebuilt folder so the build produces
+    // a ready-to-deploy `.vercel/output` structure (functions + static).
     output: {
-      dir: "dist",
-      serverDir: "dist/server",
-      publicDir: "dist/client"
+      dir: ".vercel/output"
     }
   }
 });
