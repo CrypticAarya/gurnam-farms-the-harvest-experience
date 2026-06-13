@@ -5,7 +5,7 @@ import { signOutAdmin } from "@/lib/supabase";
 import { Route as AdminLoginRoute } from "@/routes/admin/login";
 
 export function AdminLayout() {
-  const loginMatch = AdminLoginRoute.useMatch();
+  const loginMatch = AdminLoginRoute.useMatch({ strict: false } as any);
   const navigate = useNavigate();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 

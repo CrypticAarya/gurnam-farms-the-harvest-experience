@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
+import { getSession, signOutAdmin } from "@/lib/supabase";
 
 const links = [
   { label: "Home", href: "/" },
@@ -14,8 +15,13 @@ export function Navbar() {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [session, setSession] = useState<any>(null);
 
   useEffect(() => {
+    void (async () => {
+      const s = await getSession();
+      setSession(s);
+    })();
     const onScroll = () => setScrolled(window.scrollY > 40);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -49,14 +55,32 @@ export function Navbar() {
               {l.label}
             </a>
           ))}
+          {session ? (
+            <>
+              <button
+                onClick={() => navigate({ to: "/dashboard" })}
+                className="flex items-center gap-2 text-sm font-medium text-cream/80 transition-colors hover:text-gold"
+              >
+                <LayoutDashboard size={16} /> Dashboard
+              </button>
+              <button
+                onClick={async () => { await signOutAdmin(); window.location.reload(); }}
+                className="flex items-center gap-2 text-sm font-medium text-cream/80 transition-colors hover:text-rose-400"
+              >
+                <LogOut size={16} /> Sign out
+              </button>
+            </>
+          ) : null}
         </div>
 
-        <button
-          onClick={() => navigate({ to: "/reserve" })}
-          className="hidden rounded-full border border-gold bg-gold px-6 py-2.5 text-sm font-semibold text-forest-deep transition-all hover:bg-transparent hover:text-gold lg:inline-block"
-        >
-          Reserve Your Field
-        </button>
+        {!session ? (
+          <button
+            onClick={() => navigate({ to: "/reserve" })}
+            className="hidden rounded-full border border-gold bg-gold px-6 py-2.5 text-sm font-semibold text-forest-deep transition-all hover:bg-transparent hover:text-gold lg:inline-block"
+          >
+            Reserve Your Field
+          </button>
+        ) : null}
 
         <button
           aria-label="Toggle menu"
@@ -84,15 +108,32 @@ export function Navbar() {
                 {l.label}
               </a>
             ))}
-            <button
-              onClick={() => {
-                navigate({ to: "/reserve" });
-                setOpen(false);
-              }}
-              className="mt-2 rounded-full bg-gold px-6 py-3 text-center text-sm font-semibold text-forest-deep"
-            >
-              Reserve Your Field
-            </button>
+            {session ? (
+              <>
+                <button
+                  onClick={() => { navigate({ to: "/dashboard" }); setOpen(false); }}
+                  className="flex items-center gap-2 text-base text-cream/85 hover:text-gold text-left"
+                >
+                  <LayoutDashboard size={18} /> Dashboard
+                </button>
+                <button
+                  onClick={async () => { await signOutAdmin(); window.location.reload(); }}
+                  className="flex items-center gap-2 text-base text-rose-400 hover:text-rose-300 text-left"
+                >
+                  <LogOut size={18} /> Sign out
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => {
+                  navigate({ to: "/reserve" });
+                  setOpen(false);
+                }}
+                className="mt-2 rounded-full bg-gold px-6 py-3 text-center text-sm font-semibold text-forest-deep"
+              >
+                Reserve Your Field
+              </button>
+            )}
           </div>
         </motion.div>
       )}

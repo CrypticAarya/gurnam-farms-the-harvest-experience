@@ -56,7 +56,10 @@ export function Footer() {
 
         <div className="mt-16 flex flex-col items-center justify-between gap-5 border-t border-cream/10 pt-8 sm:flex-row">
           <p className="flex items-center gap-2 text-xs text-cream/50">
-            <Leaf size={14} className="text-gold" />© {new Date().getFullYear()} {" "}
+            <a href="/admin/login" aria-label="Admin Login">
+              <Leaf size={14} className="text-gold hover:text-gold/80 transition-colors" />
+            </a>
+            © {new Date().getFullYear()} {" "}
             {BUSINESS.name}. Grown with care in {BUSINESS.address}.
           </p>
           <div className="flex gap-3">

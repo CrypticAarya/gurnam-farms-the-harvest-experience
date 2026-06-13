@@ -6,6 +6,9 @@ import { signInCustomer, getSession, getProfile } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
 
 export const Route = createFileRoute("/login")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    redirect: search.redirect as string | undefined,
+  }),
   head: () => ({
     meta: [{ title: "Customer Login — Gurnam Farms" }],
   }),
@@ -14,6 +17,7 @@ export const Route = createFileRoute("/login")({
 
 function CustomerLogin() {
   const navigate = useNavigate();
+  const search = Route.useSearch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState<string>("");
@@ -23,10 +27,14 @@ function CustomerLogin() {
     void (async () => {
       const session = await getSession();
       if (session?.user) {
-        navigate({ to: "/" });
+        if (session.user.email === "sarthakghoderao@gmail.com") {
+          navigate({ to: "/admin" });
+        } else {
+          navigate({ to: search.redirect || "/reserve" });
+        }
       }
     })();
-  }, [navigate]);
+  }, [navigate, search.redirect]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -36,12 +44,10 @@ function CustomerLogin() {
     try {
       await signInCustomer({ email: email.trim(), password });
       const session = await getSession();
-      const userId = session?.user?.id ?? undefined;
-      const profile = await getProfile(userId);
-      if (profile?.role === "admin") {
+      if (session?.user?.email === "sarthakghoderao@gmail.com") {
         navigate({ to: "/admin" });
       } else {
-        navigate({ to: "/dashboard" });
+        navigate({ to: search.redirect || "/reserve" });
       }
     } catch (error) {
       logger.error("Sign in error", { err: String(error) });

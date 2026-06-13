@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { signInAdmin, getSession } from "@/lib/supabase";
+import { signInAdmin, signOutAdmin, getSession } from "@/lib/supabase";
 
 export const Route = createFileRoute("/admin/login")({
   head: () => ({
@@ -22,7 +22,13 @@ function AdminLogin() {
     void (async () => {
       const session = await getSession();
       if (session?.user) {
-        navigate({ to: "/admin" });
+        if (session.user.email === "sarthakghoderao@gmail.com") {
+          navigate({ to: "/admin" });
+        } else {
+          await signOutAdmin();
+          setStatus("error");
+          setMessage("Access Denied");
+        }
       }
     })();
   }, [navigate]);
@@ -34,7 +40,14 @@ function AdminLogin() {
 
     try {
       await signInAdmin({ email: email.trim(), password });
-      navigate({ to: "/admin" });
+      const session = await getSession();
+      if (session?.user?.email === "sarthakghoderao@gmail.com") {
+        navigate({ to: "/admin" });
+      } else {
+        await signOutAdmin();
+        setStatus("error");
+        setMessage("Access Denied");
+      }
     } catch (error) {
       setStatus("error");
       setMessage(error instanceof Error ? error.message : "Unable to sign in.");

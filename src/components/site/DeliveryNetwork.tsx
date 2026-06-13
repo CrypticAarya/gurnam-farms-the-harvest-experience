@@ -2,6 +2,7 @@ import { MapPin, Calendar, Truck } from "lucide-react";
 import { Reveal } from "./Reveal";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "@tanstack/react-router";
+import { FARM_LOCATION } from "@/lib/config";
 
 const farmInfo = [
   {
@@ -16,7 +17,7 @@ const farmInfo = [
   },
   {
     label: "Delivery Area",
-    value: "Patiala Only",
+    value: "\u00A0",
     icon: Truck,
   },
 ];
@@ -61,7 +62,7 @@ export function DeliveryNetwork() {
               asChild
               className="bg-forest hover:bg-forest-deep text-cream"
             >
-              <a href="https://maps.app.goo.gl/q7jQ6uhSisg3hz5M6" target="_blank" rel="noopener noreferrer">
+              <a href={FARM_LOCATION.shortUrl} target="_blank" rel="noopener noreferrer">
                 Get Directions
               </a>
             </Button>
@@ -99,13 +100,14 @@ export function DeliveryNetwork() {
           <div className="relative aspect-square overflow-hidden rounded-2xl border-2 border-gold/20 shadow-lg">
             {/* Google Maps Embed */}
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3430.5844857963447!2d76.37840931542095!3d30.90876859999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391174f3c0a3c0a7%3A0x1234567890abcdef!2sGurnam%20Farms!5e0!3m2!1sen!2sin!4v1234567890"
+              src={FARM_LOCATION.embedUrl}
               width="100%"
               height="100%"
               style={{ border: 0 }}
               allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
+              title="Gurnam Farms Location"
               className="absolute inset-0"
             />
           </div>

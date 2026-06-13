@@ -1,6 +1,7 @@
 import { motion, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
 import { Leaf, Sprout, Truck } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import heroFarm from "@/assets/hero-farm.jpg";
 
 type BadgeItem = {
@@ -77,12 +78,12 @@ export function Hero() {
           transition={{ duration: 0.9, delay: 0.95 }}
           className="mt-9 flex flex-col items-center justify-center gap-4 sm:flex-row"
         >
-          <a
-            href="#cta"
+          <Link
+            to="/reserve"
             className="w-full rounded-full bg-gold px-9 py-4 text-sm font-semibold tracking-wide text-forest-deep transition-transform hover:scale-[1.03] sm:w-auto"
           >
             Reserve Your Share
-          </a>
+          </Link>
           
         </motion.div>
 

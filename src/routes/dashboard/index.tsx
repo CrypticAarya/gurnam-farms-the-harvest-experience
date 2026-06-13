@@ -1,6 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { getSession, getProfile, fetchReservationsByProfile, fetchProgressByReservation } from "@/lib/supabase";
+import { getSession, getProfile, fetchReservationsByProfile } from "@/lib/supabase";
 import { Navbar } from "@/components/site/Navbar";
 import { Button } from "@/components/ui/button";
 
@@ -8,7 +8,7 @@ export const Route = createFileRoute("/dashboard/")({
   beforeLoad: async () => {
     const session = await getSession();
     const userId = session?.user?.id;
-    if (!userId) throw redirect({ to: "/login" });
+    if (!userId) throw redirect({ to: "/login", search: { redirect: "/dashboard" } });
     const profile = await getProfile(userId);
     if (!profile || profile.role !== "customer") throw redirect({ to: "/" });
   },
@@ -16,35 +16,10 @@ export const Route = createFileRoute("/dashboard/")({
 });
 
 function DashboardIndex() {
-  const profileQuery = useQuery({ queryKey: ["user", "profile"], queryFn: getProfile });
-  const reservationsQuery = useQuery({ queryKey: ["user", "reservations"], queryFn: fetchReservationsByProfile });
+  const profileQuery = useQuery({ queryKey: ["user", "profile"], queryFn: () => getProfile() });
+  const reservationsQuery = useQuery({ queryKey: ["user", "reservations"], queryFn: () => fetchReservationsByProfile() });
 
   const latest = reservationsQuery.data?.[0] ?? null;
-
-  const progressQuery = useQuery({
-    queryKey: ["reservations", latest?.id, "progress"],
-    queryFn: () => (latest ? fetchProgressByReservation(latest.id) : null),
-    enabled: !!latest,
-    refetchInterval: 10000,
-  });
-
-  const progressSteps = [
-    { key: "reservation_received", label: "Reservation Received" },
-    { key: "farm_preparation", label: "Farm Preparation" },
-    { key: "harvest_ready", label: "Harvest Ready" },
-    { key: "harvested", label: "Harvested" },
-    { key: "week_1_delivered", label: "Week 1 Delivered" },
-    { key: "week_2_delivered", label: "Week 2 Delivered" },
-    { key: "week_3_delivered", label: "Week 3 Delivered" },
-    { key: "week_4_delivered", label: "Week 4 Delivered" },
-    { key: "week_5_delivered", label: "Week 5 Delivered" },
-    { key: "week_6_delivered", label: "Week 6 Delivered" },
-    { key: "week_7_delivered", label: "Week 7 Delivered" },
-  ] as const;
-
-  const completedSteps = progressQuery.data
-    ? progressSteps.filter((step) => (progressQuery.data as any)[step.key]).length
-    : 0;
 
   return (
     <div className="min-h-screen bg-cream">
@@ -124,7 +99,7 @@ function DashboardIndex() {
                 <div className="mt-6 border-t border-forest-deep/10 pt-6">
                   <p className="text-xs text-muted-foreground">Selected Vegetables</p>
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {latest.selected_vegetables.map((veg) => (
+                    {latest.selected_vegetables.map((veg: string) => (
                       <span key={veg} className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
                         {veg}
                       </span>
@@ -140,62 +115,30 @@ function DashboardIndex() {
                 )}
               </div>
 
-              {/* Progress Section */}
-              <div>
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-forest-deep">Harvest Progress</h3>
-                  {progressQuery.data && (
-                    <p className="text-xs text-muted-foreground">
-                      Last updated: {new Date(progressQuery.data.updated_at).toLocaleString()}
+              {/* Order Status Section */}
+              <div className="rounded-2xl border border-forest-deep/10 bg-white/90 p-6 shadow-lg">
+                <h3 className="text-lg font-semibold text-forest-deep">Order Status</h3>
+                <div className="mt-4 flex items-center justify-between rounded-xl bg-forest-deep/5 p-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Current Fulfillment Status</p>
+                    <p className="mt-1 font-semibold text-forest-deep">
+                      {latest.status || "Pending"}
                     </p>
-                  )}
+                  </div>
+                  <div>
+                    <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
+                      (latest.status || "Pending") === "Confirmed" ? "bg-orange-100 text-orange-800" :
+                      (latest.status || "Pending") === "Delivered" ? "bg-emerald-100 text-emerald-800" :
+                      "bg-amber-100 text-amber-800"
+                    }`}>
+                      {(latest.status || "Pending").toUpperCase()}
+                    </span>
+                  </div>
                 </div>
-
-                {progressQuery.isLoading ? (
-                  <div className="mt-4 rounded-2xl border border-forest-deep/10 bg-white/90 p-6">
-                    <div className="flex items-center gap-3">
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-gold border-t-transparent" />
-                      <p className="text-sm text-muted-foreground">Loading progress...</p>
-                    </div>
-                  </div>
-                ) : progressQuery.isError ? (
-                  <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-4">
-                    <p className="text-sm text-rose-700">Unable to load progress. Please refresh to try again.</p>
-                  </div>
-                ) : !progressQuery.data ? (
-                  <div className="mt-4 rounded-2xl border border-dashed border-forest-deep/25 bg-forest-deep/5 p-6">
-                    <p className="text-sm text-muted-foreground">Progress tracking not available yet.</p>
-                  </div>
-                ) : (
-                  <div className="mt-4 space-y-2">
-                    {/* Progress Bar */}
-                    <div className="rounded-full bg-forest-deep/10 p-1">
-                      <div
-                        className="rounded-full bg-gradient-to-r from-gold to-emerald-600 px-3 py-1 text-center text-xs font-medium text-white transition-all"
-                        style={{ width: `${(completedSteps / progressSteps.length) * 100}%` }}
-                      >
-                        {completedSteps}/{progressSteps.length}
-                      </div>
-                    </div>
-
-                    {/* Progress Steps */}
-                    <div className="mt-4 space-y-2">
-                      {progressSteps.map((step, idx) => {
-                        const isCompleted = (progressQuery.data as any)[step.key];
-                        return (
-                          <div key={step.key} className="flex items-center gap-3">
-                            <div className={`flex h-6 w-6 items-center justify-center rounded-full text-sm font-bold ${isCompleted ? "bg-emerald-600 text-white" : "bg-forest-deep/10 text-muted-foreground"}`}>
-                              {isCompleted ? "✓" : idx + 1}
-                            </div>
-                            <span className={`text-sm ${isCompleted ? "font-medium text-forest-deep" : "text-muted-foreground"}`}>
-                              {step.label}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
+                <div className="mt-4">
+                  <p className="text-sm text-muted-foreground">Quantity Reserved</p>
+                  <p className="mt-1 font-medium text-forest-deep">{latest.quantity ?? 1} Box{(latest.quantity ?? 1) > 1 ? "es" : ""}</p>
+                </div>
               </div>
             </div>
           )}

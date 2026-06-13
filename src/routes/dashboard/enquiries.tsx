@@ -6,7 +6,7 @@ export const Route = createFileRoute("/dashboard/enquiries")({
   beforeLoad: async () => {
     const session = await getSession();
     const userId = session?.user?.id;
-    if (!userId) throw redirect({ to: "/login" });
+    if (!userId) throw redirect({ to: "/login", search: { redirect: "/dashboard/enquiries" } });
     const profile = await getProfile(userId);
     if (!profile || profile.role !== "customer") throw redirect({ to: "/" });
   },
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/dashboard/enquiries")({
 });
 
 function EnquiriesPage() {
-  const query = useQuery({ queryKey: ["user", "enquiries"], queryFn: fetchUserEnquiries });
+  const query = useQuery({ queryKey: ["user", "enquiries"], queryFn: () => fetchUserEnquiries() });
   const items = query.data ?? [];
 
   return (

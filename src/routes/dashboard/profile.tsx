@@ -10,7 +10,7 @@ export const Route = createFileRoute("/dashboard/profile")({
   beforeLoad: async () => {
     const session = await getSession();
     const userId = session?.user?.id;
-    if (!userId) throw redirect({ to: "/login" });
+    if (!userId) throw redirect({ to: "/login", search: { redirect: "/dashboard/profile" } });
     const profile = await getProfile(userId);
     if (!profile || profile.role !== "customer") throw redirect({ to: "/" });
   },

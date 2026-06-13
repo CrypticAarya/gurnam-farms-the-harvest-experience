@@ -47,13 +47,13 @@ export const Route = createFileRoute("/admin/customers")({
 
 function AdminCustomers() {
   const [search, setSearch] = useState("");
-  const query = useQuery<ContactSubmissionRow[], Error>(["admin", "customers"], fetchContactSubmissions);
+  const query = useQuery({ queryKey: ["admin", "customers"], queryFn: () => fetchContactSubmissions() });
 
   const rows = useMemo(() => {
     return (query.data ?? [])
       .slice()
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-      .filter((submission) => {
+      .filter((submission: ContactSubmissionRow) => {
         const term = search.trim().toLowerCase();
         if (!term) return true;
         return (
@@ -105,7 +105,7 @@ function AdminCustomers() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map((submission) => (
+              {(rows as ContactSubmissionRow[]).map((submission) => (
                 <TableRow key={submission.id}>
                   <TableCell>{submission.name}</TableCell>
                   <TableCell>{submission.email}</TableCell>

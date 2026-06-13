@@ -76,21 +76,21 @@ function AdminDashboard() {
 
           <Card className="bg-gradient-to-br from-orange-50 to-white/90">
             <CardHeader>
-              <CardTitle className="text-sm">Active Deliveries</CardTitle>
-              <CardDescription>In progress / confirmed</CardDescription>
+              <CardTitle className="text-sm">Confirmed</CardTitle>
+              <CardDescription>Active processing</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-orange-700">{metricsQuery.isLoading ? "—" : metrics?.activeDeliveries ?? 0}</p>
+              <p className="text-3xl font-bold text-orange-700">{metricsQuery.isLoading ? "—" : metrics?.confirmedReservations ?? 0}</p>
             </CardContent>
           </Card>
 
           <Card className="bg-gradient-to-br from-green-50 to-white/90">
             <CardHeader>
-              <CardTitle className="text-sm">Completed</CardTitle>
-              <CardDescription>Successfully delivered</CardDescription>
+              <CardTitle className="text-sm">Delivered</CardTitle>
+              <CardDescription>Successfully completed</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-green-700">{metricsQuery.isLoading ? "—" : metrics?.completedDeliveries ?? 0}</p>
+              <p className="text-3xl font-bold text-green-700">{metricsQuery.isLoading ? "—" : metrics?.deliveredReservations ?? 0}</p>
             </CardContent>
           </Card>
         </div>

@@ -27,6 +27,8 @@ export type ReservationInsert = {
   address: string;
   selected_vegetables: string[];
   notes?: string;
+  quantity?: number;
+  status?: string;
   profile_id?: string | null;
 };
 
@@ -96,19 +98,15 @@ export async function getSession() {
   return data.session;
 }
 
-// Check if user is admin based on profile role
+// Check if user is admin based on auth email strictly
 export async function isAdmin(userId?: string) {
   try {
-    logger.info("[isAdmin] Checking admin status", { userId });
-    const profile = await getProfile(userId);
-    const isAdminUser = profile?.role === "admin";
+    const { data: { user } } = await supabase.auth.getUser();
     logger.info("[isAdmin] Admin check result", {
-      userId,
-      profileExists: !!profile,
-      role: profile?.role,
-      isAdmin: isAdminUser,
+      email: user?.email,
+      isAdmin: user?.email === "sarthakghoderao@gmail.com",
     });
-    return isAdminUser;
+    return user?.email === "sarthakghoderao@gmail.com";
   } catch (error) {
     logger.error("[isAdmin] Error checking admin status", { err: String(error) });
     return false;
@@ -116,7 +114,7 @@ export async function isAdmin(userId?: string) {
 }
 
 export async function upsertProfile(profile: Partial<Profile> & { id: string }) {
-  const { data, error } = await supabase.from<Profile>("profiles").upsert(profile).select().maybeSingle();
+  const { data, error } = await supabase.from("profiles").upsert(profile).select().maybeSingle();
   if (error) throwSupabaseError(error);
   return data as Profile | null;
 }
@@ -132,7 +130,7 @@ export async function getProfile(userId?: string) {
     return null;
   }
   logger.info("[getProfile] Fetching profile", { userId });
-  const { data, error } = await supabase.from<Profile>("profiles").select("*").eq("id", userId).maybeSingle();
+  const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
   if (error) {
     logger.error("[getProfile] Error fetching profile", { err: formatSupabaseError(error) });
     throwSupabaseError(error);
@@ -200,7 +198,7 @@ export async function submitNewsletterSubscriber(
   subscriber: NewsletterSubscriberInsert
 ) {
   const { data, error } = await supabase
-    .from<NewsletterSubscriberRow>("newsletter_subscribers")
+    .from("newsletter_subscribers")
     .insert(subscriber)
     .select();
   if (error) throwSupabaseError(error);
@@ -220,7 +218,7 @@ export async function submitContactSubmission(
   const payload = { ...submission, profile_id: profileId } as any;
 
   const { data, error } = await supabase
-    .from<ContactSubmissionRow>("contact_submissions")
+    .from("contact_submissions")
     .insert(payload)
     .select();
   if (error) throwSupabaseError(error);
@@ -235,20 +233,13 @@ export async function submitReservation(reservation: ReservationInsert) {
   const payload = { ...reservation, profile_id: profileId } as any;
 
   const { data, error } = await supabase
-    .from<ReservationRow>("reservations")
+    .from("reservations")
     .insert(payload)
     .select();
   if (error) throwSupabaseError(error);
 
   const inserted = data?.[0];
   if (inserted) {
-    // Try to create progress record (trigger may already create it)
-    try {
-      await createProgressForReservation(inserted.id as number);
-    } catch (e) {
-      logger.warn("[submitReservation] createProgressForReservation failed", { err: String(e) });
-    }
-
     // Send confirmation email via server function (best-effort)
     try {
       const { sendReservationConfirmationEmail } = await import("@/lib/api/email.functions");
@@ -276,7 +267,7 @@ export async function submitReservation(reservation: ReservationInsert) {
 
 export async function fetchReservations() {
   const { data, error } = await supabase
-    .from<ReservationRow>("reservations")
+    .from("reservations")
     .select("*")
     .order("created_at", { ascending: false });
   if (error) throwSupabaseError(error);
@@ -285,7 +276,7 @@ export async function fetchReservations() {
 
 export async function fetchContactSubmissions() {
   const { data, error } = await supabase
-    .from<ContactSubmissionRow>("contact_submissions")
+    .from("contact_submissions")
     .select("*")
     .order("created_at", { ascending: false });
   if (error) throwSupabaseError(error);
@@ -294,7 +285,7 @@ export async function fetchContactSubmissions() {
 
 export async function fetchNewsletterSubscribers() {
   const { data, error } = await supabase
-    .from<NewsletterSubscriberRow>("newsletter_subscribers")
+    .from("newsletter_subscribers")
     .select("*")
     .order("created_at", { ascending: false });
   if (error) throwSupabaseError(error);
@@ -303,13 +294,13 @@ export async function fetchNewsletterSubscribers() {
 
 export async function fetchDashboardCounts() {
   const contacts = await supabase
-    .from<ContactSubmissionRow>("contact_submissions")
+    .from("contact_submissions")
     .select("id", { count: "exact", head: true });
   const reservations = await supabase
-    .from<ReservationRow>("reservations")
+    .from("reservations")
     .select("id", { count: "exact", head: true });
   const subscribers = await supabase
-    .from<NewsletterSubscriberRow>("newsletter_subscribers")
+    .from("newsletter_subscribers")
     .select("id", { count: "exact", head: true });
 
   if (contacts.error || reservations.error || subscribers.error) {
@@ -327,13 +318,13 @@ export async function fetchAdminMetrics() {
   try {
     // Total customers (unique profile_id from reservations)
     const customers = await supabase
-      .from<ReservationRow>("reservations")
+      .from("reservations")
       .select("profile_id", { count: "exact", head: true })
       .not("profile_id", "is", null);
 
     // Total reservations
     const allReservations = await supabase
-      .from<ReservationRow>("reservations")
+      .from("reservations")
       .select("id, status", { count: "exact", head: false });
 
     // Count by status
@@ -349,18 +340,18 @@ export async function fetchAdminMetrics() {
     return {
       totalCustomers: customers.count ?? 0,
       totalReservations: allReservations.count ?? 0,
-      activeDeliveries: (reservationsByStatus["confirmed"] ?? 0) + (reservationsByStatus["pending"] ?? 0),
-      completedDeliveries: reservationsByStatus["completed"] ?? 0,
-      pendingReservations: reservationsByStatus["pending"] ?? 0,
+      pendingReservations: reservationsByStatus["Pending"] ?? 0,
+      confirmedReservations: reservationsByStatus["Confirmed"] ?? 0,
+      deliveredReservations: reservationsByStatus["Delivered"] ?? 0,
     };
   } catch (err) {
     logger.error("fetchAdminMetrics failed", { err: String(err) });
     return {
       totalCustomers: 0,
       totalReservations: 0,
-      activeDeliveries: 0,
-      completedDeliveries: 0,
       pendingReservations: 0,
+      confirmedReservations: 0,
+      deliveredReservations: 0,
     };
   }
 }
@@ -406,10 +397,10 @@ export async function fetchRecentActivity(limit = 6) {
 
 // Customer-scoped helpers
 export async function fetchUserReservations(userId?: string) {
-  if (!userId) userId = await getCurrentUserId();
+  if (!userId) userId = (await getCurrentUserId()) ?? undefined;
   if (!userId) return [];
   const { data, error } = await supabase
-    .from<ReservationRow>("reservations")
+    .from("reservations")
     .select("*")
     .eq("profile_id", userId)
     .order("created_at", { ascending: false });
@@ -418,10 +409,10 @@ export async function fetchUserReservations(userId?: string) {
 }
 
 export async function fetchUserEnquiries(userId?: string) {
-  if (!userId) userId = await getCurrentUserId();
+  if (!userId) userId = (await getCurrentUserId()) ?? undefined;
   if (!userId) return [];
   const { data, error } = await supabase
-    .from<ContactSubmissionRow>("contact_submissions")
+    .from("contact_submissions")
     .select("*")
     .eq("profile_id", userId)
     .order("created_at", { ascending: false });
@@ -430,10 +421,10 @@ export async function fetchUserEnquiries(userId?: string) {
 }
 
 export async function fetchReservationsByProfile(userId?: string) {
-  if (!userId) userId = await getCurrentUserId();
+  if (!userId) userId = (await getCurrentUserId()) ?? undefined;
   if (!userId) return [];
   const { data, error } = await supabase
-    .from<ReservationRow>("reservations")
+    .from("reservations")
     .select("*")
     .eq("profile_id", userId)
     .order("created_at", { ascending: false });
@@ -443,59 +434,16 @@ export async function fetchReservationsByProfile(userId?: string) {
 
 // Admin helpers
 export async function fetchAllCustomers() {
-  const { data, error } = await supabase.from<Profile>("profiles").select("*").order("created_at", { ascending: false });
+  const { data, error } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
   if (error) throw error;
   return data ?? [];
 }
 
-// Reservation progress types and helpers
-export type ReservationProgressRow = {
-  id: number;
-  reservation_id: number;
-  reservation_received: boolean;
-  farm_preparation: boolean;
-  harvest_ready: boolean;
-  harvested: boolean;
-  week_1_delivered: boolean;
-  week_2_delivered: boolean;
-  week_3_delivered: boolean;
-  week_4_delivered: boolean;
-  week_5_delivered: boolean;
-  week_6_delivered: boolean;
-  week_7_delivered: boolean;
-  updated_at: string;
-};
-
-export async function createProgressForReservation(reservationId: number) {
+export async function updateReservationDetails(reservationId: number, updates: Partial<ReservationRow>) {
   const { data, error } = await supabase
-    .from<ReservationProgressRow>("reservation_progress")
-    .insert({ reservation_id: reservationId, reservation_received: true })
-    .select()
-    .maybeSingle();
-  if (error) {
-    // If the trigger already created it, ignore conflict errors
-    logger.warn("[createProgressForReservation] error creating progress", { err: formatSupabaseError(error) });
-    return null;
-  }
-  return data ?? null;
-}
-
-export async function fetchProgressByReservation(reservationId: number) {
-  const { data, error } = await supabase
-    .from<ReservationProgressRow>("reservation_progress")
-    .select("*")
-    .eq("reservation_id", reservationId)
-    .maybeSingle();
-  if (error) throwSupabaseError(error);
-  return data ?? null;
-}
-
-export async function updateReservationProgress(reservationId: number, updates: Partial<ReservationProgressRow>) {
-  const payload = { ...updates, updated_at: new Date().toISOString() } as any;
-  const { data, error } = await supabase
-    .from<ReservationProgressRow>("reservation_progress")
-    .update(payload)
-    .eq("reservation_id", reservationId)
+    .from("reservations")
+    .update(updates as any)
+    .eq("id", reservationId)
     .select()
     .maybeSingle();
   if (error) throwSupabaseError(error);

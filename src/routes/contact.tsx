@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,6 +8,12 @@ import { logger } from "@/lib/logger";
 import { DELIVERY_LOCATIONS } from "@/lib/config";
 
 export const Route = createFileRoute("/contact")({
+  beforeLoad: async ({ location }) => {
+    const session = await getSession();
+    if (!session?.user) {
+      throw redirect({ to: "/login", search: { redirect: location.href } });
+    }
+  },
   head: () => ({
     meta: [{ title: "Contact Us — Gurnam Farms" }],
   }),
@@ -35,7 +41,7 @@ function ContactPage() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!signedIn) {
-      navigate({ to: "/login" });
+      navigate({ to: "/login", search: { redirect: "/contact" } });
       return;
     }
 
@@ -75,11 +81,6 @@ function ContactPage() {
           </p>
         </div>
 
-        {!signedIn ? (
-          <div className="mb-6 rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
-            Please sign in before submitting a message. <a href="/login" className="font-semibold text-forest-deep underline">Login</a> or <a href="/signup" className="font-semibold text-forest-deep underline">Sign up</a>.
-          </div>
-        ) : null}
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="grid gap-4 md:grid-cols-2">
             <div>

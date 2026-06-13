@@ -1,19 +1,20 @@
 import React, { useState, type FormEvent } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { getSession, submitReservation } from "@/lib/supabase";
+import { getSession, submitReservation, fetchReservationsByProfile } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
-import { DELIVERY_AREAS, DELIVERY_LOCATIONS } from "@/lib/config";
+import { DELIVERY_AREAS, DELIVERY_LOCATIONS, VEGETABLES } from "@/lib/config";
 import { motion } from "motion/react";
 
-const VEGETABLES = {
-  winter: ["Cauliflower", "Carrot", "Mustard Greens", "Spinach", "Radish", "Turnip", "Peas", "Cabbage"],
-  summer: ["Okra", "Bottle Gourd", "Bitter Gourd", "Ridge Gourd", "Brinjal", "Tomato", "Cucumber", "Green Chilli"],
-};
-
 export const Route = createFileRoute("/reserve")({
+  beforeLoad: async ({ location }) => {
+    const session = await getSession();
+    if (!session?.user) {
+      throw redirect({ to: "/login", search: { redirect: location.href } });
+    }
+  },
   head: () => ({
     meta: [{ title: "Reserve Your Field — Gurnam Farms" }],
   }),
@@ -35,6 +36,7 @@ function ReservePage() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState<string>("");
   const [signedIn, setSignedIn] = useState(false);
+  const [hasActiveReservation, setHasActiveReservation] = useState(false);
 
   React.useEffect(() => {
     void (async () => {
@@ -43,6 +45,9 @@ function ReservePage() {
         setSignedIn(!!session?.user);
         if (session?.user?.email) {
           setForm((prev) => ({ ...prev, email: session.user.email || "" }));
+          const reservations = await fetchReservationsByProfile();
+          const active = reservations.some(r => r.status === "Pending" || r.status === "Confirmed");
+          setHasActiveReservation(active);
         }
       } catch (error) {
         logger.error("Session error", { err: String(error) });
@@ -139,6 +144,26 @@ function ReservePage() {
               className="mt-8"
             >
               Return to Home
+            </Button>
+          </motion.div>
+        ) : hasActiveReservation ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-[2rem] border border-amber-200 bg-amber-50 p-8 sm:p-12 text-center shadow-xl backdrop-blur-sm"
+          >
+            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100">
+              <span className="text-3xl">⚠️</span>
+            </div>
+            <h1 className="text-3xl font-semibold text-amber-900">Active Reservation Found</h1>
+            <p className="mt-4 text-base text-amber-800">
+              You already have an active weekly harvest reservation. We process one active reservation per customer to ensure everyone receives their share.
+            </p>
+            <Button
+              onClick={() => navigate({ to: "/dashboard" })}
+              className="mt-8 bg-amber-600 hover:bg-amber-700"
+            >
+              View My Dashboard
             </Button>
           </motion.div>
         ) : (
@@ -269,23 +294,6 @@ function ReservePage() {
                 <div className="space-y-6">
                   <h2 className="text-2xl font-semibold text-forest-deep">What would you like?</h2>
                   
-                  <div className="space-y-4">
-                    <h3 className="font-medium text-forest-deep">Winter Harvest</h3>
-                    <div className="grid grid-cols-2 gap-3">
-                      {VEGETABLES.winter.map((veg) => (
-                        <label key={veg} className="flex items-center gap-3 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={form.selectedVegetables.includes(veg)}
-                            onChange={() => handleVegetableToggle(veg)}
-                            className="h-4 w-4 rounded border-forest-deep"
-                          />
-                          <span className="text-sm text-forest-deep">{veg}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
                   <div className="space-y-4">
                     <h3 className="font-medium text-forest-deep">Summer Harvest</h3>
                     <div className="grid grid-cols-2 gap-3">
