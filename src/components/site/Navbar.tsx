@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { Menu, X, LogOut, LayoutDashboard } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard, UserPlus, LogIn } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { getSession, signOutAdmin } from "@/lib/supabase";
 
@@ -70,7 +70,22 @@ export function Navbar() {
                 <LogOut size={16} /> Sign out
               </button>
             </>
-          ) : null}
+          ) : (
+            <>
+              <button
+                onClick={() => navigate({ to: "/login" })}
+                className="flex items-center gap-2 text-sm font-medium text-cream/80 transition-colors hover:text-gold"
+              >
+                <LogIn size={16} /> Log In
+              </button>
+              <button
+                onClick={() => navigate({ to: "/signup" })}
+                className="flex items-center gap-2 text-sm font-medium text-cream/80 transition-colors hover:text-gold"
+              >
+                <UserPlus size={16} /> Sign Up
+              </button>
+            </>
+          )}
         </div>
 
         {!session ? (
@@ -124,15 +139,29 @@ export function Navbar() {
                 </button>
               </>
             ) : (
-              <button
-                onClick={() => {
-                  navigate({ to: "/reserve" });
-                  setOpen(false);
-                }}
-                className="mt-2 rounded-full bg-gold px-6 py-3 text-center text-sm font-semibold text-forest-deep"
-              >
-                Reserve Your Field
-              </button>
+              <>
+                <button
+                  onClick={() => { navigate({ to: "/login" }); setOpen(false); }}
+                  className="flex items-center gap-2 text-base text-cream/85 hover:text-gold text-left"
+                >
+                  <LogIn size={18} /> Log In
+                </button>
+                <button
+                  onClick={() => { navigate({ to: "/signup" }); setOpen(false); }}
+                  className="flex items-center gap-2 text-base text-cream/85 hover:text-gold text-left"
+                >
+                  <UserPlus size={18} /> Sign Up
+                </button>
+                <button
+                  onClick={() => {
+                    navigate({ to: "/reserve" });
+                    setOpen(false);
+                  }}
+                  className="mt-2 rounded-full bg-gold px-6 py-3 text-center text-sm font-semibold text-forest-deep"
+                >
+                  Reserve Your Field
+                </button>
+              </>
             )}
           </div>
         </motion.div>
