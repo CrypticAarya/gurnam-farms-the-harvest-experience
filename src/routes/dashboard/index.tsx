@@ -46,6 +46,11 @@ function DashboardIndex() {
               <div className="flex flex-col gap-3">
                 <p className="font-medium text-rose-900">Unable to load reservations</p>
                 <p className="text-sm text-rose-700">There was an error retrieving your reservation data. Please try refreshing the page.</p>
+                {reservationsQuery.error && (
+                  <div className="rounded-md bg-rose-100 p-2 text-xs font-mono text-rose-800 break-words">
+                    Error details: {reservationsQuery.error instanceof Error ? reservationsQuery.error.message : String(reservationsQuery.error)}
+                  </div>
+                )}
                 <Button
                   variant="outline"
                   size="sm"

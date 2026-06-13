@@ -115,7 +115,22 @@ function AdminReservations() {
         {query.isLoading ? (
           <p className="text-sm text-muted-foreground">Loading reservations...</p>
         ) : query.isError ? (
-          <p className="text-sm text-rose-600">Unable to load reservations.</p>
+          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4">
+            <p className="font-medium text-rose-900">Unable to load reservations.</p>
+            {query.error && (
+              <div className="mt-2 rounded-md bg-rose-100 p-2 text-xs font-mono text-rose-800 break-words">
+                Error details: {query.error instanceof Error ? query.error.message : String(query.error)}
+              </div>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => query.refetch()}
+              className="mt-4 border-rose-300 text-rose-900 hover:bg-rose-100"
+            >
+              Retry
+            </Button>
+          </div>
         ) : rows.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-forest-deep/25 bg-forest-deep/5 p-10 text-center text-forest-deep">
             <p className="text-lg font-semibold">No reservations found</p>

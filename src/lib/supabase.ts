@@ -306,7 +306,7 @@ export async function submitReservation(reservation: ReservationInsert) {
 export async function fetchReservations() {
   const { data, error } = await supabase
     .from("reservations")
-    .select("*")
+    .select("id, full_name, phone_number, email, delivery_area, address, selected_vegetables, notes, quantity, status, created_at")
     .order("created_at", { ascending: false });
   if (error) throwSupabaseError(error);
   return data ?? [];
