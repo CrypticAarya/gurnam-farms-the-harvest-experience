@@ -98,19 +98,42 @@ export async function getSession() {
   return data.session;
 }
 
-// Check if user is admin based on auth email strictly
+// Check if user is admin based on profile role in database
 export async function isAdmin(userId?: string) {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
+    const profile = await getProfile(userId);
     logger.info("[isAdmin] Admin check result", {
-      email: user?.email,
-      isAdmin: user?.email === "sarthakghoderao@gmail.com",
+      userId,
+      email: profile?.email,
+      role: profile?.role,
+      isAdmin: profile?.role === "admin",
     });
-    return user?.email === "sarthakghoderao@gmail.com";
+    return profile?.role === "admin";
   } catch (error) {
     logger.error("[isAdmin] Error checking admin status", { err: String(error) });
     return false;
   }
+}
+
+// Sign in with Google OAuth
+export async function signInWithGoogle(redirectTo?: string) {
+  const targetRedirect = redirectTo || (window.location.origin + "/login");
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: targetRedirect,
+    },
+  });
+  if (error) throwSupabaseError(error);
+  return data;
+}
+
+// Listen to auth state changes (crucial for handling OAuth redirect callback)
+export function onAuthStateChange(callback: (event: string, session: any) => void) {
+  const { data } = supabase.auth.onAuthStateChange(callback);
+  return () => {
+    data.subscription.unsubscribe();
+  };
 }
 
 export async function upsertProfile(profile: Partial<Profile> & { id: string }) {
