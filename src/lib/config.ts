@@ -32,7 +32,23 @@ export const BUSINESS = {
 };
 
 export const VEGETABLES = {
-  winter: ["Cauliflower", "Carrot", "Mustard Greens", "Spinach", "Radish", "Turnip", "Peas", "Cabbage"],
+  winter: [
+    "Cauliflower",
+    "Carrot",
+    "Mustard Greens",
+    "Spinach",
+    "Radish",
+    "Turnip",
+    "Peas",
+    "Cabbage",
+    "Broccoli",
+    "Fenugreek",
+    "Coriander",
+    "Garlic",
+    "Onion",
+    "Potatoes",
+    "Beetroot"
+  ]
 };
 
 /**
