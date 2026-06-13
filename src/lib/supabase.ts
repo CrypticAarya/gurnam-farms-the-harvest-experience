@@ -105,18 +105,13 @@ const ADMIN_EMAILS = ["sarthakghoderao@gmail.com"];
 export async function isAdmin(userId?: string) {
   try {
     const profile = await getProfile(userId);
-    const email = profile?.email || (await supabase.auth.getUser()).data.user?.email;
     
-    if (email && ADMIN_EMAILS.includes(email.toLowerCase())) {
-      return true;
-    }
-
     logger.info("[isAdmin] Admin check result", {
       userId,
-      email: profile?.email,
       role: profile?.role,
       isAdmin: profile?.role === "admin",
     });
+
     return profile?.role === "admin";
   } catch (error) {
     logger.error("[isAdmin] Error checking admin status", { err: String(error) });
@@ -306,7 +301,7 @@ export async function submitReservation(reservation: ReservationInsert) {
 export async function fetchReservations() {
   const { data, error } = await supabase
     .from("reservations")
-    .select("id, full_name, phone_number, email, delivery_area, address, selected_vegetables, notes, quantity, status, created_at")
+    .select("id, full_name, phone_number, email, delivery_area, address, selected_vegetables, notes, quantity, status, profile_id, created_at")
     .order("created_at", { ascending: false });
   if (error) throwSupabaseError(error);
   return data ?? [];
@@ -431,12 +426,10 @@ export async function fetchRecentActivity(limit = 6) {
 export async function fetchUserReservations(userId?: string) {
   if (!userId) userId = (await getCurrentUserId()) ?? undefined;
   if (!userId) return [];
-  const profile = await getProfile(userId);
-  if (!profile || !profile.email) return [];
   const { data, error } = await supabase
     .from("reservations")
     .select("*")
-    .eq("email", profile.email)
+    .eq("profile_id", userId)
     .order("created_at", { ascending: false });
   if (error) throw error;
   return data ?? [];
@@ -459,12 +452,10 @@ export async function fetchUserEnquiries(userId?: string) {
 export async function fetchReservationsByProfile(userId?: string) {
   if (!userId) userId = (await getCurrentUserId()) ?? undefined;
   if (!userId) return [];
-  const profile = await getProfile(userId);
-  if (!profile || !profile.email) return [];
   const { data, error } = await supabase
     .from("reservations")
     .select("*")
-    .eq("email", profile.email)
+    .eq("profile_id", userId)
     .order("created_at", { ascending: false });
   if (error) throwSupabaseError(error);
   return data ?? [];

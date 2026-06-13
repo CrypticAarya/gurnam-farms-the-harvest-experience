@@ -105,6 +105,7 @@ function ReservePage() {
     }
 
     try {
+      const session = await getSession();
       await submitReservation({
         full_name: form.fullName.trim(),
         phone_number: form.phone.trim(),
@@ -113,6 +114,7 @@ function ReservePage() {
         address: form.address.trim(),
         selected_vegetables: form.selectedVegetables,
         notes: form.notes.trim(),
+        profile_id: session?.user?.id ?? null,
       });
       setStatus("success");
       setStep(8);
