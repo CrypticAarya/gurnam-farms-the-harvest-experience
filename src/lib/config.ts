@@ -33,7 +33,6 @@ export const BUSINESS = {
 
 export const VEGETABLES = {
   winter: ["Cauliflower", "Carrot", "Mustard Greens", "Spinach", "Radish", "Turnip", "Peas", "Cabbage"],
-  summer: ["Okra", "Bottle Gourd", "Bitter Gourd", "Ridge Gourd", "Brinjal", "Tomato", "Cucumber", "Green Chilli"],
 };
 
 /**

@@ -6,6 +6,9 @@ import { signUpCustomer, getSession, signInWithGoogle, onAuthStateChange, isAdmi
 import { logger } from "@/lib/logger";
 
 export const Route = createFileRoute("/signup")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    redirect: search.redirect as string | undefined,
+  }),
   head: () => ({
     meta: [{ title: "Customer Sign Up — Gurnam Farms" }],
   }),
@@ -14,6 +17,7 @@ export const Route = createFileRoute("/signup")({
 
 function CustomerSignup() {
   const navigate = useNavigate();
+  const search = Route.useSearch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState<string>("");
@@ -25,11 +29,11 @@ function CustomerSignup() {
       if (isUserAdmin) {
         navigate({ to: "/admin" });
       } else {
-        navigate({ to: "/dashboard" });
+        navigate({ to: search.redirect || "/dashboard" });
       }
     } catch (err) {
       logger.error("Redirection logic failed", { err: String(err) });
-      navigate({ to: "/dashboard" });
+      navigate({ to: search.redirect || "/dashboard" });
     }
   };
 
@@ -68,10 +72,17 @@ function CustomerSignup() {
         throw new Error("Password must be at least 6 characters");
       }
 
-      await signUpCustomer({ email: email.trim(), password });
+      const data = await signUpCustomer({ email: email.trim(), password });
       
       setStatus("success");
-      setMessage("Your account has been created! Please check your email for confirmation.");
+      
+      if (data?.session?.user) {
+        setMessage("Account created successfully. Redirecting...");
+        await checkRedirect(data.session.user.id);
+      } else {
+        setMessage("Account created! Please log in to continue.");
+        setTimeout(() => navigate({ to: "/login" }), 2000);
+      }
     } catch (error) {
       logger.error("Signup error", { err: String(error) });
       setStatus("error");
@@ -98,7 +109,7 @@ function CustomerSignup() {
     setStatus("loading");
     setMessage("");
     try {
-      await signInWithGoogle(window.location.origin + "/login");
+      await signInWithGoogle(window.location.origin + "/login" + (search.redirect ? `?redirect=${encodeURIComponent(search.redirect)}` : ""));
     } catch (error) {
       logger.error("Google Sign-in/up error", { err: String(error) });
       setStatus("error");

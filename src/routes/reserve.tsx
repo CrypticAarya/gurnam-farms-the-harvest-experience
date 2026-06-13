@@ -295,9 +295,9 @@ function ReservePage() {
                   <h2 className="text-2xl font-semibold text-forest-deep">What would you like?</h2>
                   
                   <div className="space-y-4">
-                    <h3 className="font-medium text-forest-deep">Summer Harvest</h3>
+                    <h3 className="font-medium text-forest-deep">Winter Harvest</h3>
                     <div className="grid grid-cols-2 gap-3">
-                      {VEGETABLES.summer.map((veg) => (
+                      {VEGETABLES.winter.map((veg) => (
                         <label key={veg} className="flex items-center gap-3 cursor-pointer">
                           <input
                             type="checkbox"

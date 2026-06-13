@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { logger } from "@/lib/logger";
+import { VEGETABLES } from "@/lib/config";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -98,10 +99,18 @@ export async function getSession() {
   return data.session;
 }
 
+const ADMIN_EMAILS = ["sarthakghoderao@gmail.com"];
+
 // Check if user is admin based on profile role in database
 export async function isAdmin(userId?: string) {
   try {
     const profile = await getProfile(userId);
+    const email = profile?.email || (await supabase.auth.getUser()).data.user?.email;
+    
+    if (email && ADMIN_EMAILS.includes(email.toLowerCase())) {
+      return true;
+    }
+
     logger.info("[isAdmin] Admin check result", {
       userId,
       email: profile?.email,
@@ -185,9 +194,7 @@ export async function signUpCustomer({
     throwSupabaseError(error);
   }
 
-  // Profile will be created automatically by Supabase trigger when the user
-  // is confirmed in auth.users. The trigger sets role='customer' for all users.
-  // Admins must be manually assigned via database update (prevents email-based privilege escalation).
+  return data;
 }
 
 export async function signInCustomer({
@@ -237,8 +244,7 @@ async function getCurrentUserId() {
 export async function submitContactSubmission(
   submission: ContactSubmissionInsert
 ) {
-  const profileId = await getCurrentUserId();
-  const payload = { ...submission, profile_id: profileId } as any;
+  const payload = { ...submission } as any;
 
   const { data, error } = await supabase
     .from("contact_submissions")
@@ -251,9 +257,18 @@ export async function submitContactSubmission(
 import { sendReservationConfirmation } from "@/services/email/emailService";
 
 export async function submitReservation(reservation: ReservationInsert) {
-  // Attach profile_id when available
-  const profileId = await getCurrentUserId();
-  const payload = { ...reservation, profile_id: profileId } as any;
+  // Validate and filter vegetables
+  const validVegetables = new Set(VEGETABLES.winter);
+  const cleanVegetables = [...new Set(reservation.selected_vegetables)].filter(v => validVegetables.has(v));
+  
+  if (cleanVegetables.length === 0) {
+    throw new Error("Invalid reservation: At least one valid Winter vegetable must be selected.");
+  }
+  
+  const payload = { 
+    ...reservation, 
+    selected_vegetables: cleanVegetables 
+  } as any;
 
   const { data, error } = await supabase
     .from("reservations")
@@ -339,22 +354,16 @@ export async function fetchDashboardCounts() {
 
 export async function fetchAdminMetrics() {
   try {
-    // Total customers (unique profile_id from reservations)
+    // Total customers (unique email from reservations)
     const customers = await supabase
       .from("reservations")
-      .select("profile_id", { count: "exact", head: true })
-      .not("profile_id", "is", null);
+      .select("email", { count: "exact", head: true })
+      .not("email", "is", null);
 
     // Total reservations
     const allReservations = await supabase
       .from("reservations")
-      .select("id, status", { count: "exact", head: false });
-
-    // Count by status
-    const reservationsByStatus = allReservations.data?.reduce((acc: any, res) => {
-      acc[res.status] = (acc[res.status] ?? 0) + 1;
-      return acc;
-    }, {}) ?? {};
+      .select("id", { count: "exact", head: false });
 
     if (customers.error || allReservations.error) {
       throwSupabaseError(customers.error ?? allReservations.error);
@@ -363,9 +372,9 @@ export async function fetchAdminMetrics() {
     return {
       totalCustomers: customers.count ?? 0,
       totalReservations: allReservations.count ?? 0,
-      pendingReservations: reservationsByStatus["Pending"] ?? 0,
-      confirmedReservations: reservationsByStatus["Confirmed"] ?? 0,
-      deliveredReservations: reservationsByStatus["Delivered"] ?? 0,
+      pendingReservations: 0,
+      confirmedReservations: 0,
+      deliveredReservations: 0,
     };
   } catch (err) {
     logger.error("fetchAdminMetrics failed", { err: String(err) });
@@ -422,10 +431,12 @@ export async function fetchRecentActivity(limit = 6) {
 export async function fetchUserReservations(userId?: string) {
   if (!userId) userId = (await getCurrentUserId()) ?? undefined;
   if (!userId) return [];
+  const profile = await getProfile(userId);
+  if (!profile || !profile.email) return [];
   const { data, error } = await supabase
     .from("reservations")
     .select("*")
-    .eq("profile_id", userId)
+    .eq("email", profile.email)
     .order("created_at", { ascending: false });
   if (error) throw error;
   return data ?? [];
@@ -434,10 +445,12 @@ export async function fetchUserReservations(userId?: string) {
 export async function fetchUserEnquiries(userId?: string) {
   if (!userId) userId = (await getCurrentUserId()) ?? undefined;
   if (!userId) return [];
+  const profile = await getProfile(userId);
+  if (!profile || !profile.email) return [];
   const { data, error } = await supabase
     .from("contact_submissions")
     .select("*")
-    .eq("profile_id", userId)
+    .eq("email", profile.email)
     .order("created_at", { ascending: false });
   if (error) throw error;
   return data ?? [];
@@ -446,10 +459,12 @@ export async function fetchUserEnquiries(userId?: string) {
 export async function fetchReservationsByProfile(userId?: string) {
   if (!userId) userId = (await getCurrentUserId()) ?? undefined;
   if (!userId) return [];
+  const profile = await getProfile(userId);
+  if (!profile || !profile.email) return [];
   const { data, error } = await supabase
     .from("reservations")
     .select("*")
-    .eq("profile_id", userId)
+    .eq("email", profile.email)
     .order("created_at", { ascending: false });
   if (error) throwSupabaseError(error);
   return data ?? [];
