@@ -1,17 +1,31 @@
 import { useState } from "react";
 import { Link, Outlet, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { signOutAdmin } from "@/lib/supabase";
+import { fetchContactSubmissions } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
 import { Route as AdminLoginRoute } from "@/routes/admin/login";
 
 export function AdminLayout() {
   const loginMatch = AdminLoginRoute.useMatch({ strict: false } as any);
   const navigate = useNavigate();
+  const { profile, signOut } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  // Poll new enquiry count for the sidebar badge
+  const enquiriesQuery = useQuery({
+    queryKey: ["admin", "enquiries"],
+    queryFn: fetchContactSubmissions,
+    refetchInterval: 30_000,
+    enabled: !loginMatch,
+  });
+  const newEnquiryCount = (enquiriesQuery.data ?? []).filter(
+    (e: any) => e.status === "New"
+  ).length;
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
-    await signOutAdmin();
+    await signOut();
     navigate({ to: "/admin/login" });
   };
 
@@ -43,6 +57,14 @@ export function AdminLayout() {
             <Link to="/admin/reservations" className="block rounded-2xl px-4 py-3 transition hover:bg-forest-deep/5 hover:text-forest-deep">
               Reservations
             </Link>
+            <Link to="/admin/enquiries" className="flex items-center justify-between rounded-2xl px-4 py-3 transition hover:bg-forest-deep/5 hover:text-forest-deep">
+              <span>Enquiries</span>
+              {newEnquiryCount > 0 && (
+                <span className="ml-2 inline-flex items-center rounded-full bg-blue-600 px-2 py-0.5 text-xs font-bold text-white">
+                  {newEnquiryCount}
+                </span>
+              )}
+            </Link>
             <Link to="/admin/subscribers" className="block rounded-2xl px-4 py-3 transition hover:bg-forest-deep/5 hover:text-forest-deep">
               Subscribers
             </Link>
@@ -63,7 +85,7 @@ export function AdminLayout() {
                 <h1 className="mt-2 text-3xl font-semibold text-forest-deep">Gurnam Farms Dashboard</h1>
               </div>
               <div className="rounded-full bg-forest-deep px-4 py-2 text-sm font-semibold text-cream">
-                Admin Profile
+                {profile?.name ?? "Admin"}
               </div>
             </div>
           </div>

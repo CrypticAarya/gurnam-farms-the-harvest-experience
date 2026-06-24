@@ -1,11 +1,7 @@
-import { Leaf, Instagram, Facebook, Twitter } from "lucide-react";
+import { Leaf, Instagram } from "lucide-react";
 import { BUSINESS } from "@/lib/config";
 
 const columns = [
-  // {
-  //   title: "Company",
-  //   links: ["Our Story", "Delivery Areas"],
-  // },
   {
     title: "Support",
     links: ["Reserve", "Contact"],
@@ -59,20 +55,19 @@ export function Footer() {
             <a href="/admin/login" aria-label="Admin Login">
               <Leaf size={14} className="text-gold hover:text-gold/80 transition-colors" />
             </a>
-            © {new Date().getFullYear()} {" "}
+            © {new Date().getFullYear()}{" "}
             {BUSINESS.name}. Grown with care in {BUSINESS.address}.
           </p>
           <div className="flex gap-3">
-            {[Instagram, Facebook, Twitter].map((Icon, i) => (
-              <a
-                key={i}
-                href="#"
-                aria-label="Social link"
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-cream/15 text-cream/70 transition-colors hover:border-gold hover:text-gold"
-              >
-                <Icon size={17} />
-              </a>
-            ))}
+            <a
+              href={BUSINESS.social.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Gurnam Farms on Instagram"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-cream/15 text-cream/70 transition-colors hover:border-gold hover:text-gold"
+            >
+              <Instagram size={17} />
+            </a>
           </div>
         </div>
       </div>

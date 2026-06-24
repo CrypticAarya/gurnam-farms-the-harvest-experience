@@ -2,8 +2,9 @@ import { useEffect, useState, type FormEvent } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { signUpCustomer, getSession, signInWithGoogle, onAuthStateChange, isAdmin } from "@/lib/supabase";
+import { signUpCustomer, signInWithGoogle } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const Route = createFileRoute("/signup")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -23,40 +24,18 @@ function CustomerSignup() {
   const [message, setMessage] = useState<string>("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
-  const checkRedirect = async (userId: string) => {
-    try {
-      const isUserAdmin = await isAdmin(userId);
-      if (isUserAdmin) {
+  const { user, profile, isLoading } = useAuth();
+
+  useEffect(() => {
+    // If the user and profile are already loaded, redirect them
+    if (!isLoading && user && profile) {
+      if (profile.role === "admin") {
         navigate({ to: "/admin" });
       } else {
         navigate({ to: search.redirect || "/dashboard" });
       }
-    } catch (err) {
-      logger.error("Redirection logic failed", { err: String(err) });
-      navigate({ to: search.redirect || "/dashboard" });
     }
-  };
-
-  useEffect(() => {
-    // Check if already logged in
-    void (async () => {
-      const session = await getSession();
-      if (session?.user) {
-        await checkRedirect(session.user.id);
-      }
-    })();
-
-    // Listen to OAuth state changes
-    const unsubscribe = onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        await checkRedirect(session.user.id);
-      }
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, [navigate]);
+  }, [user, profile, isLoading, navigate, search.redirect]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -78,10 +57,10 @@ function CustomerSignup() {
       
       if (data?.session?.user) {
         setMessage("Account created successfully. Redirecting...");
-        await checkRedirect(data.session.user.id);
+        // Redirection will happen automatically via the useEffect on user/profile change
       } else {
         setMessage("Account created! Please log in to continue.");
-        setTimeout(() => navigate({ to: "/login" }), 2000);
+        setTimeout(() => navigate({ to: "/login", search: { redirect: undefined } }), 2000);
       }
     } catch (error) {
       logger.error("Signup error", { err: String(error) });

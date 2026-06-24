@@ -2,8 +2,9 @@ import { useEffect, useState, type FormEvent } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { signInAdmin, signOutAdmin, getSession, signInWithGoogle, onAuthStateChange, isAdmin } from "@/lib/supabase";
+import { signInAdmin, signOutAdmin, signInWithGoogle } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const Route = createFileRoute("/admin/login")({
   head: () => ({
@@ -19,44 +20,21 @@ function AdminLogin() {
   const [message, setMessage] = useState<string>("");
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
 
-  const verifyAdminAccess = async (userId: string) => {
-    try {
-      const isUserAdmin = await isAdmin(userId);
-      if (isUserAdmin) {
-        navigate({ to: "/admin" });
-      } else {
-        await signOutAdmin();
-        setStatus("error");
-        setMessage("Access Denied: Admin privileges required.");
-      }
-    } catch (err) {
-      logger.error("Admin verification failed", { err: String(err) });
-      await signOutAdmin();
-      setStatus("error");
-      setMessage("Verification error. Access Denied.");
-    }
-  };
+  const { user, profile, isLoading, signOut } = useAuth();
 
   useEffect(() => {
-    // Check current session immediately
-    void (async () => {
-      const session = await getSession();
-      if (session?.user) {
-        await verifyAdminAccess(session.user.id);
+    // If the user and profile are already loaded, redirect them
+    if (!isLoading && user && profile) {
+      if (profile.role === "admin") {
+        navigate({ to: "/admin" });
+      } else {
+        void signOut().then(() => {
+          setStatus("error");
+          setMessage("Access Denied: Admin privileges required.");
+        });
       }
-    })();
-
-    // Listen to OAuth login state changes
-    const unsubscribe = onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        await verifyAdminAccess(session.user.id);
-      }
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, [navigate]);
+    }
+  }, [user, profile, isLoading, navigate, signOut]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -65,12 +43,7 @@ function AdminLogin() {
 
     try {
       await signInAdmin({ email: email.trim(), password });
-      const session = await getSession();
-      if (session?.user) {
-        await verifyAdminAccess(session.user.id);
-      } else {
-        throw new Error("Unable to retrieve session after login.");
-      }
+      // Redirection or error will happen automatically via the useEffect
     } catch (error) {
       setStatus("error");
       setMessage(error instanceof Error ? error.message : "Unable to sign in.");

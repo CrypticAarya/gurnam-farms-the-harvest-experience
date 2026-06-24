@@ -6,6 +6,7 @@ import { DELIVERY_LOCATIONS } from "@/lib/config";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Navbar } from "@/components/site/Navbar";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const Route = createFileRoute("/dashboard/profile")({
   beforeLoad: async () => {
@@ -19,17 +20,26 @@ export const Route = createFileRoute("/dashboard/profile")({
 });
 
 function ProfilePage() {
+  const { profile: authProfile, refreshProfile } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [profile, setProfile] = useState(() => ({ name: "", phone: "", city: DELIVERY_LOCATIONS[0] ?? "" } as any));
+  
+  // Use authProfile to initialize state. If it changes, update the local form state
+  const [profile, setProfile] = useState(() => ({ 
+    id: authProfile?.id ?? "",
+    name: authProfile?.name ?? "", 
+    phone: authProfile?.phone ?? "", 
+    city: authProfile?.city ?? DELIVERY_LOCATIONS[0] ?? "" 
+  } as any));
 
   useState(() => {
-    void (async () => {
-      const session = await getSession();
-      const userId = session?.user?.id;
-      if (!userId) return;
-      const p = await getProfile(userId);
-      if (p) setProfile(p as any);
-    })();
+    if (authProfile) {
+      setProfile({
+        id: authProfile.id,
+        name: authProfile.name ?? "",
+        phone: authProfile.phone ?? "",
+        city: authProfile.city ?? DELIVERY_LOCATIONS[0] ?? ""
+      });
+    }
   });
 
   const handleSubmit = async (e: FormEvent) => {
@@ -37,6 +47,7 @@ function ProfilePage() {
     setLoading(true);
     try {
       await upsertProfile({ id: profile.id, name: profile.name, phone: profile.phone, city: profile.city });
+      await refreshProfile();
       setLoading(false);
     } catch (err) {
       setLoading(false);

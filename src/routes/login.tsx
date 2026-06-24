@@ -2,8 +2,9 @@ import { useEffect, useState, type FormEvent } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { signInCustomer, getSession, signInWithGoogle, onAuthStateChange, isAdmin } from "@/lib/supabase";
+import { signInCustomer, signInWithGoogle } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const Route = createFileRoute("/login")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -23,40 +24,18 @@ function CustomerLogin() {
   const [message, setMessage] = useState<string>("");
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
 
-  const checkRedirect = async (userId: string) => {
-    try {
-      const isUserAdmin = await isAdmin(userId);
-      if (isUserAdmin) {
+  const { user, profile, isLoading } = useAuth();
+
+  useEffect(() => {
+    // If the user and profile are already loaded, redirect them
+    if (!isLoading && user && profile) {
+      if (profile.role === "admin") {
         navigate({ to: "/admin" });
       } else {
         navigate({ to: search.redirect || "/dashboard" });
       }
-    } catch (err) {
-      logger.error("Redirection logic failed", { err: String(err) });
-      navigate({ to: "/dashboard" });
     }
-  };
-
-  useEffect(() => {
-    // Check active session immediately
-    void (async () => {
-      const session = await getSession();
-      if (session?.user) {
-        await checkRedirect(session.user.id);
-      }
-    })();
-
-    // Listen for auth state change to handle async OAuth callbacks immediately
-    const unsubscribe = onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        await checkRedirect(session.user.id);
-      }
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, [navigate, search.redirect]);
+  }, [user, profile, isLoading, navigate, search.redirect]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -65,10 +44,7 @@ function CustomerLogin() {
 
     try {
       await signInCustomer({ email: email.trim(), password });
-      const session = await getSession();
-      if (session?.user) {
-        await checkRedirect(session.user.id);
-      }
+      // Redirection will happen automatically via the useEffect on user/profile change
     } catch (error) {
       logger.error("Sign in error", { err: String(error) });
       setStatus("error");

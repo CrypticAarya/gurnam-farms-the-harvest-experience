@@ -23,6 +23,7 @@ import { Route as DashboardEnquiriesRouteImport } from './routes/dashboard/enqui
 import { Route as AdminSubscribersRouteImport } from './routes/admin/subscribers'
 import { Route as AdminReservationsRouteImport } from './routes/admin/reservations'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
+import { Route as AdminEnquiriesRouteImport } from './routes/admin/enquiries'
 import { Route as AdminCustomersRouteImport } from './routes/admin/customers'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -95,6 +96,11 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
   path: '/admin/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminEnquiriesRoute = AdminEnquiriesRouteImport.update({
+  id: '/admin/enquiries',
+  path: '/admin/enquiries',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminCustomersRoute = AdminCustomersRouteImport.update({
   id: '/admin/customers',
   path: '/admin/customers',
@@ -109,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/customers': typeof AdminCustomersRoute
+  '/admin/enquiries': typeof AdminEnquiriesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/reservations': typeof AdminReservationsRoute
   '/admin/subscribers': typeof AdminSubscribersRoute
@@ -126,6 +133,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/customers': typeof AdminCustomersRoute
+  '/admin/enquiries': typeof AdminEnquiriesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/reservations': typeof AdminReservationsRoute
   '/admin/subscribers': typeof AdminSubscribersRoute
@@ -144,6 +152,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/customers': typeof AdminCustomersRoute
+  '/admin/enquiries': typeof AdminEnquiriesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/reservations': typeof AdminReservationsRoute
   '/admin/subscribers': typeof AdminSubscribersRoute
@@ -163,6 +172,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/sitemap.xml'
     | '/admin/customers'
+    | '/admin/enquiries'
     | '/admin/login'
     | '/admin/reservations'
     | '/admin/subscribers'
@@ -180,6 +190,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/sitemap.xml'
     | '/admin/customers'
+    | '/admin/enquiries'
     | '/admin/login'
     | '/admin/reservations'
     | '/admin/subscribers'
@@ -197,6 +208,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/sitemap.xml'
     | '/admin/customers'
+    | '/admin/enquiries'
     | '/admin/login'
     | '/admin/reservations'
     | '/admin/subscribers'
@@ -215,6 +227,7 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AdminCustomersRoute: typeof AdminCustomersRoute
+  AdminEnquiriesRoute: typeof AdminEnquiriesRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminReservationsRoute: typeof AdminReservationsRoute
   AdminSubscribersRoute: typeof AdminSubscribersRoute
@@ -325,6 +338,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/enquiries': {
+      id: '/admin/enquiries'
+      path: '/admin/enquiries'
+      fullPath: '/admin/enquiries'
+      preLoaderRoute: typeof AdminEnquiriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/customers': {
       id: '/admin/customers'
       path: '/admin/customers'
@@ -343,6 +363,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   AdminCustomersRoute: AdminCustomersRoute,
+  AdminEnquiriesRoute: AdminEnquiriesRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminReservationsRoute: AdminReservationsRoute,
   AdminSubscribersRoute: AdminSubscribersRoute,

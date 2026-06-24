@@ -17,7 +17,7 @@ const farmInfo = [
   },
   {
     label: "Delivery Area",
-    value: "\u00A0",
+    value: "4 Cities Covered",
     icon: Truck,
   },
 ];

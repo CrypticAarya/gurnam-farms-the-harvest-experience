@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Menu, X, LogOut, LayoutDashboard, UserPlus, LogIn } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
-import { getSession, signOutAdmin } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
 
 const links = [
   { label: "Home", href: "/" },
@@ -13,15 +13,11 @@ const links = [
 
 export function Navbar() {
   const navigate = useNavigate();
+  const { session, signOut } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const [session, setSession] = useState<any>(null);
 
   useEffect(() => {
-    void (async () => {
-      const s = await getSession();
-      setSession(s);
-    })();
     const onScroll = () => setScrolled(window.scrollY > 40);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -64,7 +60,7 @@ export function Navbar() {
                 <LayoutDashboard size={16} /> Dashboard
               </button>
               <button
-                onClick={async () => { await signOutAdmin(); window.location.reload(); }}
+                onClick={async () => { await signOut(); window.location.reload(); }}
                 className="flex items-center gap-2 text-sm font-medium text-cream/80 transition-colors hover:text-rose-400"
               >
                 <LogOut size={16} /> Sign out
@@ -73,13 +69,13 @@ export function Navbar() {
           ) : (
             <>
               <button
-                onClick={() => navigate({ to: "/login" })}
+                onClick={() => navigate({ to: "/login", search: { redirect: undefined } })}
                 className="flex items-center gap-2 text-sm font-medium text-cream/80 transition-colors hover:text-gold"
               >
                 <LogIn size={16} /> Log In
               </button>
               <button
-                onClick={() => navigate({ to: "/signup" })}
+                onClick={() => navigate({ to: "/signup", search: { redirect: undefined } })}
                 className="flex items-center gap-2 text-sm font-medium text-cream/80 transition-colors hover:text-gold"
               >
                 <UserPlus size={16} /> Sign Up
@@ -132,7 +128,7 @@ export function Navbar() {
                   <LayoutDashboard size={18} /> Dashboard
                 </button>
                 <button
-                  onClick={async () => { await signOutAdmin(); window.location.reload(); }}
+                  onClick={async () => { await signOut(); window.location.reload(); }}
                   className="flex items-center gap-2 text-base text-rose-400 hover:text-rose-300 text-left"
                 >
                   <LogOut size={18} /> Sign out
@@ -141,13 +137,13 @@ export function Navbar() {
             ) : (
               <>
                 <button
-                  onClick={() => { navigate({ to: "/login" }); setOpen(false); }}
+                  onClick={() => { navigate({ to: "/login", search: { redirect: undefined } }); setOpen(false); }}
                   className="flex items-center gap-2 text-base text-cream/85 hover:text-gold text-left"
                 >
                   <LogIn size={18} /> Log In
                 </button>
                 <button
-                  onClick={() => { navigate({ to: "/signup" }); setOpen(false); }}
+                  onClick={() => { navigate({ to: "/signup", search: { redirect: undefined } }); setOpen(false); }}
                   className="flex items-center gap-2 text-base text-cream/85 hover:text-gold text-left"
                 >
                   <UserPlus size={18} /> Sign Up

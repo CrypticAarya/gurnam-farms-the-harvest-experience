@@ -59,7 +59,7 @@ function AdminCustomers() {
         return (
           submission.name.toLowerCase().includes(term) ||
           submission.email.toLowerCase().includes(term) ||
-          submission.city.toLowerCase().includes(term)
+          submission.phone.toLowerCase().includes(term)
         );
       });
   }, [query.data, search]);
@@ -99,7 +99,6 @@ function AdminCustomers() {
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Phone</TableHead>
-                <TableHead>Locality</TableHead>
                 <TableHead>Message</TableHead>
                 <TableHead>Created Date</TableHead>
               </TableRow>
@@ -110,7 +109,6 @@ function AdminCustomers() {
                   <TableCell>{submission.name}</TableCell>
                   <TableCell>{submission.email}</TableCell>
                   <TableCell>{submission.phone}</TableCell>
-                  <TableCell>{submission.city}</TableCell>
                   <TableCell>
                     <details className="group">
                       <summary className="cursor-pointer text-sm text-forest-deep transition hover:text-gold">View message</summary>

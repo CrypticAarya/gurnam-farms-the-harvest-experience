@@ -24,9 +24,7 @@ export const BUSINESS = {
   email: "info@gurnamfarms.example",
   address: "Punjab, India",
   social: {
-    instagram: "",
-    facebook: "",
-    twitter: "",
+    instagram: "https://www.instagram.com/gurnam_farms?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==",
   },
   deliveryAreas: DELIVERY_AREAS,
 };

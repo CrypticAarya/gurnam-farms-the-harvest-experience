@@ -42,13 +42,13 @@ export type ContactSubmissionInsert = {
   name: string;
   email: string;
   phone: string;
-  city: string;
   message: string;
 };
 
 export type ContactSubmissionRow = ContactSubmissionInsert & {
   id: number;
   profile_id?: string | null;
+  status: "New" | "Contacted" | "Closed";
   created_at: string;
 };
 
@@ -59,6 +59,8 @@ export type Profile = {
   phone?: string | null;
   city?: string | null;
   role: "admin" | "customer";
+  avatar_url?: string | null;
+  auth_provider?: string | null;
   created_at: string;
 };
 
@@ -239,7 +241,9 @@ async function getCurrentUserId() {
 export async function submitContactSubmission(
   submission: ContactSubmissionInsert
 ) {
-  const payload = { ...submission } as any;
+  const currentUser = await supabase.auth.getUser();
+  const profileId = currentUser.data.user?.id ?? null;
+  const payload = { ...submission, profile_id: profileId } as any;
 
   const { data, error } = await supabase
     .from("contact_submissions")
@@ -247,6 +251,20 @@ export async function submitContactSubmission(
     .select();
   if (error) throwSupabaseError(error);
   return data;
+}
+
+export async function updateContactSubmissionStatus(
+  id: number,
+  status: "New" | "Contacted" | "Closed"
+) {
+  const { data, error } = await supabase
+    .from("contact_submissions")
+    .update({ status })
+    .eq("id", id)
+    .select()
+    .maybeSingle();
+  if (error) throwSupabaseError(error);
+  return data as ContactSubmissionRow | null;
 }
 
 import { sendReservationConfirmation } from "@/services/email/emailService";

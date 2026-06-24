@@ -1,8 +1,9 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { getSession, getProfile, fetchReservationsByProfile } from "@/lib/supabase";
 import { Navbar } from "@/components/site/Navbar";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const Route = createFileRoute("/dashboard/")({
   beforeLoad: async () => {
@@ -16,7 +17,8 @@ export const Route = createFileRoute("/dashboard/")({
 });
 
 function DashboardIndex() {
-  const profileQuery = useQuery({ queryKey: ["user", "profile"], queryFn: () => getProfile() });
+  const navigate = useNavigate();
+  const { profile } = useAuth();
   const reservationsQuery = useQuery({ queryKey: ["user", "reservations"], queryFn: () => fetchReservationsByProfile() });
 
   const latest = reservationsQuery.data?.[0] ?? null;
@@ -26,7 +28,7 @@ function DashboardIndex() {
       <Navbar />
       <main className="mx-auto max-w-4xl p-6">
         <h1 className="text-3xl font-semibold text-forest-deep">My Dashboard</h1>
-        <p className="mt-2 text-muted-foreground">Welcome back{profileQuery.data?.name ? `, ${profileQuery.data.name}` : ""}.</p>
+        <p className="mt-2 text-muted-foreground">Welcome back{profile?.name ? `, ${profile.name}` : ""}.</p>
 
         {/* Reservations Section */}
         <section className="mt-8">
@@ -70,7 +72,7 @@ function DashboardIndex() {
                 <p className="max-w-sm text-sm text-muted-foreground">
                   You haven't made a weekly harvest reservation yet. Start your farm-to-home experience today!
                 </p>
-                <Button className="mt-2">Make a Reservation</Button>
+                <Button className="mt-2" onClick={() => navigate({ to: "/reserve" })}>Make a Reservation</Button>
               </div>
             </div>
           ) : (
