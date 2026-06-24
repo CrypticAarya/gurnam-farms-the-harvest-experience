@@ -103,11 +103,23 @@ export async function getSession() {
 
 const ADMIN_EMAILS = ["sarthakghoderao@gmail.com"];
 
-// Check if user is admin based on profile role in database
+// Check if user is admin.
+// Primary check: profile.role === "admin" in the profiles table.
+// Fallback: email is in the ADMIN_EMAILS allowlist (handles cases where role is not set).
 export async function isAdmin(userId?: string) {
   try {
+    // Get the actual authenticated user to check their email directly
+    const userResponse = await supabase.auth.getUser();
+    const userEmail = userResponse.data.user?.email ?? null;
+
+    // Fallback: always allow hardcoded admin emails, regardless of profile role
+    if (userEmail && ADMIN_EMAILS.includes(userEmail)) {
+      logger.info("[isAdmin] Granted via ADMIN_EMAILS allowlist", { userEmail });
+      return true;
+    }
+
     const profile = await getProfile(userId);
-    
+
     logger.info("[isAdmin] Admin check result", {
       userId,
       role: profile?.role,
@@ -319,10 +331,10 @@ export async function submitReservation(reservation: ReservationInsert) {
 export async function fetchReservations() {
   const { data, error } = await supabase
     .from("reservations")
-    .select("id, full_name, phone_number, email, delivery_area, address, selected_vegetables, notes, quantity, status, profile_id, created_at")
+    .select("*")
     .order("created_at", { ascending: false });
   if (error) throwSupabaseError(error);
-  return data ?? [];
+  return (data ?? []) as ReservationRow[];
 }
 
 export async function fetchContactSubmissions() {
