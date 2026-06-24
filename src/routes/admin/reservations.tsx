@@ -214,7 +214,7 @@ function AdminReservations() {
                     <TableCell>{r.email}</TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
-                        {r.selected_vegetables.map(v => (
+                        {r.selected_vegetables.map((v: string) => (
                           <span key={v} className="rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 border border-emerald-200">
                             {v}
                           </span>
