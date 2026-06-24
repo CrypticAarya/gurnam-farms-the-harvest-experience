@@ -51,22 +51,22 @@ export function AdminLayout() {
             <Link to="/admin" className="block rounded-2xl px-4 py-3 transition hover:bg-forest-deep/5 hover:text-forest-deep">
               Dashboard
             </Link>
-            <Link to="/admin/customers" className="block rounded-2xl px-4 py-3 transition hover:bg-forest-deep/5 hover:text-forest-deep">
-              Customers
-            </Link>
             <Link to="/admin/reservations" className="block rounded-2xl px-4 py-3 transition hover:bg-forest-deep/5 hover:text-forest-deep">
               Reservations
             </Link>
             <Link to="/admin/enquiries" className="flex items-center justify-between rounded-2xl px-4 py-3 transition hover:bg-forest-deep/5 hover:text-forest-deep">
-              <span>Enquiries</span>
+              <span>Contact Enquiries</span>
               {newEnquiryCount > 0 && (
                 <span className="ml-2 inline-flex items-center rounded-full bg-blue-600 px-2 py-0.5 text-xs font-bold text-white">
                   {newEnquiryCount}
                 </span>
               )}
             </Link>
-            <Link to="/admin/subscribers" className="block rounded-2xl px-4 py-3 transition hover:bg-forest-deep/5 hover:text-forest-deep">
-              Subscribers
+            <Link to="/admin" className="block rounded-2xl px-4 py-3 transition hover:bg-forest-deep/5 hover:text-forest-deep">
+              Analytics
+            </Link>
+            <Link to="/admin" className="block rounded-2xl px-4 py-3 transition hover:bg-forest-deep/5 hover:text-forest-deep">
+              Settings
             </Link>
           </nav>
 
